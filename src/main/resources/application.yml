@@ -1,0 +1,9 @@
+#Pretty Colors
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+  application:
+    name: skate-inventory-mgmt-system
+server:
+  port: 8080
