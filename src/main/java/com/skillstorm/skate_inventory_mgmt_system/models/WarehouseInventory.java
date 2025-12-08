@@ -10,7 +10,7 @@ import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "WAREHOUSE_INVENTORY", uniqueConstraints = @UniqueConstraint(columnNames = { "warehouse_id",
-        "product_id" })) //matches database unique constraints
+        "product_id" })) // matches database unique constraints
 
 public class WarehouseInventory {
     @Id
