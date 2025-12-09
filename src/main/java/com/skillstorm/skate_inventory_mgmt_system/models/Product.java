@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity // tells spring jpa this is a database table and a BEAN
 @Table(name = "PRODUCT")
@@ -14,23 +16,32 @@ public class Product {
 
     @Id // tells jpa this is a primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Tells jpa this is auto-incremented
-    @Column(name = "product_id", nullable=false) // tells jpa this is a database column
+    @Column(name = "product_id", nullable = false) // tells jpa this is a database column
     private Integer productId;
 
-    @Column(nullable=false)
+    @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable=false)
+    @NotBlank
+    @Size(max = 40)
+    @Column(nullable = false, length = 40, unique = true)
     private String sku;
 
-    @Column(nullable=false)
+    @NotBlank
+    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String category;
 
-    @Column(nullable=false)
+    @NotBlank
+    @Size(max = 50)
+    @Column(nullable = false, length = 50)
     private String brand;
 
-    @Column(nullable=false)
+    @NotBlank
     @Lob
+    @Column(nullable = false)
     private String description;
 
     public Product() {

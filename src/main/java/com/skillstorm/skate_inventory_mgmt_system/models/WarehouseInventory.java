@@ -7,33 +7,46 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "WAREHOUSE_INVENTORY", uniqueConstraints = @UniqueConstraint(columnNames = { "warehouse_id",
-        "product_id" })) // matches database unique constraints
-
+        "product_id" }))
 public class WarehouseInventory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "warehouse_inventory_id", nullable = false)
     private Integer warehouseInventoryId;
 
+    @NotNull
     @Column(name = "warehouse_id", nullable = false)
     private Integer warehouseId;
 
+    @NotNull
     @Column(name = "product_id", nullable = false)
     private Integer productId;
 
+    @Min(0)
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
-    @Column(name = "storage_location", nullable = false)
+    @NotBlank
+    @Size(max = 50)
+    @Column(name = "storage_location", nullable = false, length = 50)
     private String storageLocation;
 
     public WarehouseInventory() {
+        // Required by JPA
     }
 
-    public WarehouseInventory(int warehouseId, int productId, int quantity, String storageLocation) {
+    public WarehouseInventory(Integer warehouseId,
+            Integer productId,
+            Integer quantity,
+            String storageLocation) {
         this.warehouseId = warehouseId;
         this.productId = productId;
         this.quantity = quantity;
@@ -64,11 +77,11 @@ public class WarehouseInventory {
         this.productId = productId;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -107,8 +120,10 @@ public class WarehouseInventory {
 
     @Override
     public String toString() {
-        return "WarehouseInventory [warehouseInventoryId=" + warehouseInventoryId + ", warehouseId=" + warehouseId
-                + ", productId=" + productId + ", quantity=" + quantity + ", storageLocation=" + storageLocation + "]";
+        return "WarehouseInventory [warehouseInventoryId=" + warehouseInventoryId
+                + ", warehouseId=" + warehouseId
+                + ", productId=" + productId
+                + ", quantity=" + quantity
+                + ", storageLocation=" + storageLocation + "]";
     }
-
 }

@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 
+import com.skillstorm.skate_inventory_mgmt_system.api.DuplicateResourceException;
 import com.skillstorm.skate_inventory_mgmt_system.models.Product;
 import com.skillstorm.skate_inventory_mgmt_system.repositories.ProductRepository;
 
@@ -21,20 +22,9 @@ public class ProductService {
         if (product == null) {
             throw new IllegalArgumentException("Product request body cannot be null.");
         }
-        if (product.getName() == null || product.getName().isBlank()) {
-            throw new IllegalArgumentException("Product name is required.");
-        }
-        if (product.getSku() == null || product.getSku().isBlank()) {
-            throw new IllegalArgumentException("Product SKU is required.");
-        }
-        if (product.getCategory() == null || product.getCategory().isBlank()) {
-            throw new IllegalArgumentException("Product category is required.");
-        }
-        if (product.getBrand() == null || product.getBrand().isBlank()) {
-            throw new IllegalArgumentException("Product brand is required.");
-        }
-        if (product.getDescription() == null || product.getDescription().isBlank()) {
-            throw new IllegalArgumentException("Product description is required.");
+
+        if (productRepository.existsBySku(product.getSku())) {
+            throw new DuplicateResourceException("Product SKU must be unique.");
         }
         // If validation passes, save the product
         return productRepository.save(product);
@@ -57,25 +47,31 @@ public class ProductService {
                 .orElseThrow(() -> new NoSuchElementException("Product not found with id " + id));
 
         // Validation checks
-        if (updates.getName() != null) {
+        if (updates.getName() != null && !updates.getName().isBlank()) {
             existing.setName(updates.getName());
         }
 
         if (updates.getSku() != null) {
+            // Only check if the SKU is actually changing
+            if (!updates.getSku().equals(existing.getSku())
+                    && productRepository.existsBySku(updates.getSku())) {
+                throw new DuplicateResourceException("Product SKU must be unique.");
+            }
             existing.setSku(updates.getSku());
         }
 
-        if (updates.getCategory() != null) {
+        if (updates.getCategory() != null && !updates.getCategory().isBlank()) {
             existing.setCategory(updates.getCategory());
         }
 
-        if (updates.getBrand() != null) {
+        if (updates.getBrand() != null && !updates.getBrand().isBlank()) {
             existing.setBrand(updates.getBrand());
         }
 
-        if (updates.getDescription() != null) {
+        if (updates.getDescription() != null && !updates.getDescription().isBlank()) {
             existing.setDescription(updates.getDescription());
         }
+        
         return productRepository.save(existing);
     }
 

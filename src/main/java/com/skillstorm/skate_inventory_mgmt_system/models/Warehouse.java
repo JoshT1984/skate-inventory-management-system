@@ -10,36 +10,53 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "WAREHOUSE")
-
 public class Warehouse {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "warehouse_id", nullable = false)
     private Integer warehouseId;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 100)
+    @Column(nullable = false, length = 100)
     private String location;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 200)
+    @Column(nullable = false, length = 200)
     private String address;
 
+    @NotNull
+    @Min(1)
     @Column(name = "max_capacity", nullable = false)
-    private int maxCapacity;
+    private Integer maxCapacity;
 
+    @NotNull
+    @Min(0)
     @Column(name = "current_capacity", nullable = false)
-    private int currentCapacity;
+    private Integer currentCapacity;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Size(max = 20)
+    @Column(nullable = false, unique = true, length = 20)
     private String code;
 
+    @NotNull
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    private Boolean isActive = Boolean.TRUE;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -48,10 +65,17 @@ public class Warehouse {
     private LocalDateTime updatedAt;
 
     public Warehouse() {
+        // Required by JPA
     }
 
-    public Warehouse(String name, String location, String address, int maxCapacity, int currentCapacity, String code,
-            boolean isActive, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    // “Business” constructor – like Product(String name, ...)
+    public Warehouse(String name,
+            String location,
+            String address,
+            Integer maxCapacity,
+            Integer currentCapacity,
+            String code,
+            Boolean isActive) {
         this.name = name;
         this.location = location;
         this.address = address;
@@ -59,8 +83,6 @@ public class Warehouse {
         this.currentCapacity = currentCapacity;
         this.code = code;
         this.isActive = isActive;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     public Integer getWarehouseId() {
@@ -95,19 +117,19 @@ public class Warehouse {
         this.address = address;
     }
 
-    public int getMaxCapacity() {
+    public Integer getMaxCapacity() {
         return maxCapacity;
     }
 
-    public void setMaxCapacity(int maxCapacity) {
+    public void setMaxCapacity(Integer maxCapacity) {
         this.maxCapacity = maxCapacity;
     }
 
-    public int getCurrentCapacity() {
+    public Integer getCurrentCapacity() {
         return currentCapacity;
     }
 
-    public void setCurrentCapacity(int currentCapacity) {
+    public void setCurrentCapacity(Integer currentCapacity) {
         this.currentCapacity = currentCapacity;
     }
 
@@ -119,11 +141,11 @@ public class Warehouse {
         this.code = code;
     }
 
-    public boolean isActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setActive(boolean isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 
@@ -143,21 +165,19 @@ public class Warehouse {
         this.updatedAt = updatedAt;
     }
 
-    /**
-     * @PrePersist
-     * @PreUpdate
-     * 
-     *            timestamps auto-managed
-     */
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+        if (this.isActive == null) {
+            this.isActive = Boolean.TRUE;
+        }
     }
 
     @PreUpdate
     public void preUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @Override
@@ -187,9 +207,15 @@ public class Warehouse {
 
     @Override
     public String toString() {
-        return "Warehouse [warehouseId=" + warehouseId + ", name=" + name + ", location=" + location + ", address="
-                + address + ", maxCapacity=" + maxCapacity + ", currentCapacity=" + currentCapacity + ", code=" + code
-                + ", isActive=" + isActive + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
+        return "Warehouse [warehouseId=" + warehouseId +
+                ", name=" + name +
+                ", location=" + location +
+                ", address=" + address +
+                ", maxCapacity=" + maxCapacity +
+                ", currentCapacity=" + currentCapacity +
+                ", code=" + code +
+                ", isActive=" + isActive +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt + "]";
     }
-
 }
