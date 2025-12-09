@@ -1,0 +1,17 @@
+nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+nav > a {
+  color: rgb(44, 28, 28);
+  text-decoration: none;
+  font-size: 16px;
+  margin: 1.5em 5em 5px 5em;
+}
+
+nav > a:hover {
+  color: rgb(249, 83, 83);
+  transition: ease-in-out 0.2s;
+}
