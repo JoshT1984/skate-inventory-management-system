@@ -2,12 +2,13 @@ spring:
   application:
     name: skate-inventory-mgmt-system
   datasource:
-    url: jdbc:h2:mem:skatedb
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver #JDBC connection driver
+    url: jdbc:postgresql://localhost:5432/skatedb
+    username: skate_user
+    password: "!@#D3v3lop3r!@#"
+    driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none # schema created manually
     defer-datasource-initialization: true
   output:
     ansi:

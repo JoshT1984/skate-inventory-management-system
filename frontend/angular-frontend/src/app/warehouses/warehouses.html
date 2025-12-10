@@ -1,1 +1,40 @@
-<p>warehouses works!</p>
+<main>
+  <h1>WAREHOUSES</h1>
+  <!-- Hiding table if there are no sales -->
+  @if(mockWarehouses.length){
+  <table>
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>name</th>
+        <th>location</th>
+        <th>address</th>
+        <th>maxCapacity</th>
+        <th>currentCapacity</th>
+        <th>code</th>
+        <th>createdAt</th>
+        <th>updatedAt</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (warehouse of mockWarehouses; track $index){
+      <tr>
+        <td>{{ warehouse.warehouseId }}</td>
+        <td>{{ warehouse.name }}</td>
+        <td>{{ warehouse.location }}</td>
+        <td>{{ warehouse.address }}</td>
+        <td>{{ warehouse.maxCapacity }}</td>
+        <td>{{ warehouse.currentCapacity }}</td>
+        <td>{{ warehouse.code }}</td>
+        <td>{{ warehouse.createdAt }}</td>
+        <td>{{ warehouse.updatedAt }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  }
+  <!--EVENT BINDING-->
+  <div>
+    <button type="button" (click)="addMockWarehouse()">Add</button>
+  </div>
+</main>
