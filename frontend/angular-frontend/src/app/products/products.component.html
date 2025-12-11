@@ -1,15 +1,8 @@
 <main>
   <section>
-    <h1>ITEMS</h1>
-
-    @for (item of mockItem; track $index){
-    <app-item [item]="item" (deleteItemEvent)="deleteMockItem($index, $event)"></app-item>
-    }
-  </section>
-  <section>
     <h1>PRODUCTS</h1>
     <!-- Hiding table if there are no sales -->
-    @if(mockProducts.length){
+    @if(products.length){
     <table>
       <thead>
         <tr>
@@ -22,18 +15,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- <tr> -->
-        <!-- {{}} is property binding -->
-        <!-- <td>{{ mockProduct.id }}</td> -->
-        <!-- <td>{{ mockProduct.customer_first_name }}</td> -->
-        <!-- <td>{{ mockProduct.customer_last_name }}</td> -->
-        <!-- <td>{{ mockProduct.date }}</td> -->
-        <!-- <td>{{ mockProduct.total }}</td> -->
-        <!-- <td>{{ mockProduct.product_id }}</td> -->
-        <!-- </tr> -->
-
-        <!-- looping through the mockProducts array to create rows-->
-        @for (product of mockProducts; track $index){
+        @for (product of products; track $index){
         <tr>
           <td>{{ product.productId }}</td>
           <td>{{ product.name }}</td>
@@ -41,24 +23,13 @@
           <td>{{ product.category }}</td>
           <td>{{ product.brand }}</td>
           <td>{{ product.description }}</td>
+          <td>
+            <button type="button" (click)="deleteProduct(product.productId)">Delete</button>
+          </td>
         </tr>
         }
-
-        <!-- Same as above but using CommonModule -->
-        <!-- <tr *ngFor="let product of mockProducts">
-      <td>{{ product.id }}</td>
-      <td>{{ product.customer_first_name }}</td>
-      <td>{{ product.customer_last_name }}</td>
-      <td>{{ product.date }}</td>
-      <td>{{ product.total }}</td>
-      <td>{{ product.product_id }}</td>
-    </tr> -->
       </tbody>
     </table>
     }
   </section>
-  <!--EVENT BINDING-->
-  <div>
-    <button type="button" (click)="addMockProduct()">Add</button>
-  </div>
 </main>

@@ -18,5 +18,7 @@ public interface WarehouseInventoryRepository extends JpaRepository<WarehouseInv
     List<WarehouseInventory> findByWarehouseId(Integer warehouseId);
 
     List<WarehouseInventory> findByProductId(Integer productId);
-}
 
+    // delete all inventory rows for a given product
+    void deleteByProductId(Integer productId);
+}

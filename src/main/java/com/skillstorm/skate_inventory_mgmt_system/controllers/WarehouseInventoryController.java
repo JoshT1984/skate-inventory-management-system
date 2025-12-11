@@ -19,7 +19,7 @@ import com.skillstorm.skate_inventory_mgmt_system.services.WarehouseInventorySer
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:4200")  // allow Angular dev server
+@CrossOrigin(origins = "http://localhost:4200") // allow Angular dev server
 @RestController
 @RequestMapping("/warehouse-inventory")
 public class WarehouseInventoryController {

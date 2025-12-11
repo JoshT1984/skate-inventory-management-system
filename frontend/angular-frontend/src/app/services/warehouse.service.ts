@@ -1,20 +1,20 @@
+// warehouse.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable } from 'rxjs';
+import { Warehouse } from '../models/warehouse.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WarehouseService {
-  constructor(private http: HttpClient) {
-    this.getAllWarehouses().subscribe((data) => {
-      console.log(data);
-    });
+  private baseUrl = 'http://localhost:8080/warehouses';
+
+  constructor(private http: HttpClient) {}
+
+  getAllWarehouses(): Observable<Warehouse[]> {
+    return this.http.get<Warehouse[]>(this.baseUrl);
   }
 
-  getAllWarehouses(): Observable<any> {
-    return this.http.get('http://localhost:8080/warehouses', {
-      observe: 'response',
-    });
-  }
+  // Add create/update/delete later if needed
 }

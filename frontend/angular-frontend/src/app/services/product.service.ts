@@ -1,24 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable } from 'rxjs';
+import { Product } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  constructor(private http: HttpClient) {
-    this.getAllProducts().subscribe((data) => {
-      console.log(data);
-    });
-  }
-  // we can write methods here that make HTTP calls of any type
+  constructor(private http: HttpClient) {}
+  //Base URL to PostGres
+  baseURL: string = 'http://localhost:8080/products';
 
   // to get all products
-  getAllProducts(): Observable<any> {
-    //first param = URL for the request
-    //second param = what data you want to observe from the response
-    return this.http.get('http://localhost:8080/products', {
-      observe: 'response',
-    });
+  getAllProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(this.baseURL);
+  }
+
+  //DELETE
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseURL}/${id}`);
   }
 }

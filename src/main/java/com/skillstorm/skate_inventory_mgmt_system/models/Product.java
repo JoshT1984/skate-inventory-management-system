@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity // tells spring jpa this is a database table and a BEAN
-@Table(name = "PRODUCT")
+@Table(name = "PRODUCTS")
 public class Product {
 
     @Id // tells jpa this is a primary key

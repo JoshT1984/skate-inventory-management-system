@@ -1,7 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Header } from './header/header';
 import { Footer } from './footer/footer';
+import { Header } from './header/header';
 
 // this is a decorator
 // components use @Component, which creates HTML/CSS/TS/spec.TS files
@@ -9,9 +10,10 @@ import { Footer } from './footer/footer';
 // the body of the component decorator establishes these links
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer],
+  standalone: true,
+  imports: [RouterOutlet, Header, Footer, CommonModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
   protected readonly title = signal('angular-frontend');

@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS WAREHOUSE_INVENTORY;
-DROP TABLE IF EXISTS PRODUCT;
-DROP TABLE IF EXISTS WAREHOUSE;
+DROP TABLE IF EXISTS WAREHOUSE_INVENTORIES;
+DROP TABLE IF EXISTS PRODUCTS;
+DROP TABLE IF EXISTS WAREHOUSES;
 
-CREATE TABLE WAREHOUSE (
+CREATE TABLE WAREHOUSES (
     warehouse_id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(100) NOT NULL,
     location VARCHAR(100) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE WAREHOUSE (
     CONSTRAINT uq_warehouse_name_location UNIQUE (name, location)
 );
 
-CREATE TABLE PRODUCT (
+CREATE TABLE PRODUCTS (
     product_id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(100) NOT NULL,
     sku VARCHAR(40) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE PRODUCT (
     CONSTRAINT uq_product_sku UNIQUE (sku)
 );
 
-CREATE TABLE WAREHOUSE_INVENTORY (
+CREATE TABLE WAREHOUSE_INVENTORIES (
     warehouse_inventory_id SERIAL PRIMARY KEY NOT NULL,
     warehouse_id INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
@@ -35,9 +35,9 @@ CREATE TABLE WAREHOUSE_INVENTORY (
     storage_location VARCHAR(50) NOT NULL,
 -- foreign keys
 CONSTRAINT fk_warehouse_inventory_warehouse
-    FOREIGN KEY (warehouse_id) REFERENCES WAREHOUSE (warehouse_id),
+    FOREIGN KEY (warehouse_id) REFERENCES WAREHOUSES (warehouse_id),
 CONSTRAINT fk_warehouse_inventory_product
-    FOREIGN KEY (product_id) REFERENCES PRODUCT (product_id),
+    FOREIGN KEY (product_id) REFERENCES PRODUCTS (product_id),
 -- many-to-many uniqueness: one row per warehouse/product pair
 CONSTRAINT uq_warehouse_inventory_wh_prod
     UNIQUE (warehouse_id, product_id)

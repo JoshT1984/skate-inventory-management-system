@@ -1,27 +1,53 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { WarehouseInventory } from '../models/warehouse-inventory.model';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { WarehouseInventoryService } from '../services/warehouse-inventory.service';
 
 @Component({
   selector: 'app-warehouse-inventory',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './warehouse-inventory.component.html',
   styleUrl: './warehouse-inventory.component.css',
 })
-export class WarehouseInventoryComponent {
-  mockWarehouseInventory: WarehouseInventory[] = [
-    new WarehouseInventory(1, 1, 6, 120, 'A1-Top-Shelf'),
-    new WarehouseInventory(2, 1, 7, 40, 'A2-Bin-3'),
-    new WarehouseInventory(3, 2, 8, 75, 'B1-Row-2'),
-    new WarehouseInventory(4, 3, 9, 15, 'C3-Locker-7'),
-    new WarehouseInventory(5, 2, 10, 200, 'B4-Top-Shelf'),
-    new WarehouseInventory(6, 3, 11, 50, 'C1-Bin-1'),
-    new WarehouseInventory(7, 1, 12, 30, 'A4-Row-1'),
-  ];
+export class WarehouseInventoryComponent implements OnInit {
+  inventory: any[] = [];
+  loading = false;
+  errorMessage: string | null = null;
 
-  addMockWarehouseInventory(): void {
-    this.mockWarehouseInventory.push(
-      new WarehouseInventory(8, 2, 13, 60, 'B5-Bin-4')
-    );
+  constructor(
+    private warehouseInventoryService: WarehouseInventoryService,
+    private cdr: ChangeDetectorRef // 👈 inject ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    console.log('WarehouseInventoryComponent ngOnInit called');
+    this.loadInventory();
+  }
+
+  loadInventory(): void {
+    console.log('loadInventory() started - REAL HTTP');
+
+    this.loading = true;
+    this.errorMessage = null;
+    this.inventory = [];
+
+    this.warehouseInventoryService.getAllWarehouseInventory().subscribe({
+      next: (items) => {
+        console.log('HTTP next fired, items:', items);
+
+        this.inventory = Array.isArray(items) ? items : [];
+        this.loading = false;
+
+        // 👇 Force Angular to re-check the view right now
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('HTTP error fired:', err);
+        this.errorMessage = 'Failed to load warehouse inventory.';
+        this.loading = false;
+
+        this.cdr.detectChanges(); // also update after errors
+      },
+    });
   }
 }

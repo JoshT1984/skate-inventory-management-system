@@ -13,7 +13,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "WAREHOUSE_INVENTORY", uniqueConstraints = @UniqueConstraint(columnNames = { "warehouse_id",
+@Table(name = "WAREHOUSE_INVENTORIES", uniqueConstraints = @UniqueConstraint(columnNames = { "warehouse_id",
         "product_id" }))
 public class WarehouseInventory {
 

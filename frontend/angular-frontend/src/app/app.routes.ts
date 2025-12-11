@@ -10,6 +10,11 @@ import { Warehouses } from './warehouses/warehouses.component';
  */
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'products',
+    pathMatch: 'full',
+  },
+  {
     path: 'products',
     component: Products,
   },
@@ -20,5 +25,10 @@ export const routes: Routes = [
   {
     path: 'warehouse-inventory',
     component: WarehouseInventoryComponent,
+  },
+  // Optional: wildcard to catch unknown routes
+  {
+    path: '**',
+    redirectTo: 'products',
   },
 ];

@@ -1,38 +1,26 @@
-<main>
-  <h1>WAREHOUSE INVENTORY</h1>
+<h2>Warehouse Inventory</h2>
 
-  <!-- Hiding table if there are no inventory records -->
-  @if (mockWarehouseInventory.length) {
-    <table>
-      <thead>
-        <tr>
-          <th>Id</th>
-          <th>Warehouse Id</th>
-          <th>Product Id</th>
-          <th>Quantity</th>
-          <th>Storage Location</th>
-        </tr>
-      </thead>
+<p><strong>Debug JSON:</strong> {{ inventory | json }}</p>
+<p><strong>Loading:</strong> {{ loading }}</p>
+<p *ngIf="errorMessage"><strong>Error:</strong> {{ errorMessage }}</p>
 
-      <tbody>
-        <!-- Looping through the mockWarehouseInventory array -->
-        @for (item of mockWarehouseInventory; track $index) {
-          <tr>
-            <td>{{ item.warehouseInventoryId }}</td>
-            <td>{{ item.warehouseId }}</td>
-            <td>{{ item.productId }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.storageLocation }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
-
-  <!-- EVENT BINDING -->
-  <div>
-    <button type="button" (click)="addMockWarehouseInventory()">
-      Add
-    </button>
-  </div>
-</main>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Warehouse ID</th>
+      <th>Product ID</th>
+      <th>Quantity</th>
+      <th>Storage Location</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of inventory">
+      <td>{{ item.warehouseInventoryId }}</td>
+      <td>{{ item.warehouseId }}</td>
+      <td>{{ item.productId }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>{{ item.storageLocation }}</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,20 +1,25 @@
+// src/app/services/warehouse-inventory.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+
+export interface WarehouseInventoryDto {
+  warehouseInventoryId: number;
+  warehouseId: number;
+  productId: number;
+  quantity: number;
+  storageLocation: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class WarehouseInventoryService {
-  constructor(private http: HttpClient) {
-    this.getAllWarehouseInventory().subscribe((data) => {
-      console.log(data);
-    });
-  }
+  private baseUrl = 'http://localhost:8080/warehouse-inventory';
 
-  getAllWarehouseInventory(): Observable<any> {
-    return this.http.get('localhost://8080/warehouses', {
-      observe: 'response',
-    });
+  constructor(private http: HttpClient) {}
+
+  getAllWarehouseInventory(): Observable<WarehouseInventoryDto[]> {
+    return this.http.get<WarehouseInventoryDto[]>(this.baseUrl);
   }
 }

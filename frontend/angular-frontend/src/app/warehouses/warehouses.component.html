@@ -1,7 +1,7 @@
 <main>
   <h1>WAREHOUSES</h1>
   <!-- Hiding table if there are no sales -->
-  @if(mockWarehouses.length){
+  @if(warehouses.length){
   <table>
     <thead>
       <tr>
@@ -17,7 +17,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (warehouse of mockWarehouses; track $index){
+      @for (warehouse of warehouses; track $index){
       <tr>
         <td>{{ warehouse.warehouseId }}</td>
         <td>{{ warehouse.name }}</td>
@@ -26,15 +26,15 @@
         <td>{{ warehouse.maxCapacity }}</td>
         <td>{{ warehouse.currentCapacity }}</td>
         <td>{{ warehouse.code }}</td>
-        <td>{{ warehouse.createdAt }}</td>
-        <td>{{ warehouse.updatedAt }}</td>
+        <td>{{ warehouse.createdAt | date : 'yyyy-MM-dd HH:mm:ss' }}</td>
+        <td>{{ warehouse.updatedAt | date : 'yyyy-MM-dd HH:mm:ss' }}</td>
       </tr>
       }
     </tbody>
   </table>
   }
   <!--EVENT BINDING-->
-  <div>
+  <!-- <div>
     <button type="button" (click)="addMockWarehouse()">Add</button>
-  </div>
+  </div> -->
 </main>

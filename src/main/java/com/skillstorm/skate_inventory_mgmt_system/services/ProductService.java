@@ -3,18 +3,23 @@ package com.skillstorm.skate_inventory_mgmt_system.services;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.springframework.stereotype.Service;
-
 import com.skillstorm.skate_inventory_mgmt_system.api.DuplicateResourceException;
 import com.skillstorm.skate_inventory_mgmt_system.models.Product;
 import com.skillstorm.skate_inventory_mgmt_system.repositories.ProductRepository;
+import com.skillstorm.skate_inventory_mgmt_system.repositories.WarehouseInventoryRepository;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final WarehouseInventoryRepository warehouseInventoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+            WarehouseInventoryRepository warehouseInventoryRepository) {
         this.productRepository = productRepository;
+        this.warehouseInventoryRepository = warehouseInventoryRepository;
     }
 
     // Create
@@ -71,14 +76,21 @@ public class ProductService {
         if (updates.getDescription() != null && !updates.getDescription().isBlank()) {
             existing.setDescription(updates.getDescription());
         }
-        
+
         return productRepository.save(existing);
     }
 
+    // DELETE
+    @Transactional
     public void deleteProductById(int id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Product was not found by id: " + id));
-        productRepository.delete(product);
-    }
+        // Ensure the product exists first
+        if (!productRepository.existsById(id)) {
+            throw new NoSuchElementException("Product was not found by id: " + id);
+        }
+        // Delete all warehouse_inventory rows that reference this product
+        warehouseInventoryRepository.deleteByProductId(id);
 
+        // Deletes the product itself
+        productRepository.deleteById(id);
+    }
 }
