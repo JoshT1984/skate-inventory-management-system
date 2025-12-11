@@ -1,0 +1,18 @@
+article {
+  width: 300px;
+  padding: 0.25em;
+  border-radius: 10px;
+  border: solid 1px darkblue;
+  background-color: lightblue;
+  align-items: center;
+  display: inline-block;
+  margin: 0px 8px 8px 0px;
+}
+
+article ul {
+  text-align: left;
+}
+
+button {
+  margin: 0.25em;
+}

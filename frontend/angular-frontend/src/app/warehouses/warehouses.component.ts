@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Warehouse } from '../models/warehouse';
+import { Warehouse } from '../models/warehouse.model';
+import { WarehouseService } from '../services/warehouse.service';
 
 @Component({
   selector: 'app-warehouses',
   imports: [CommonModule],
-  templateUrl: './warehouses.html',
-  styleUrl: './warehouses.css',
+  templateUrl: './warehouses.component.html',
+  styleUrl: './warehouses.component.css',
 })
 export class Warehouses {
+  constructor(private warehouseService: WarehouseService) {}
+
   mockWarehouses: Warehouse[] = [
     new Warehouse(
       1,
