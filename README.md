@@ -6,10 +6,10 @@ A full-stack skateboard warehouse inventory system built with Spring Boot, Angul
 
 ## 📦 Overview
 
-This application manages skateboard products—decks, trucks, wheels, bearings, apparel, and accessories—across multiple warehouse locations.  
-Admins can add warehouses, create products, and track inventory stored in each warehouse through a searchable and intuitive interface.
+This application manages skateboard products—decks, trucks, wheels, bearings, safety gear, and accessories—across multiple warehouse locations.  
+Admins can add warehouses, create products, and track inventory stored in each warehouse through a clean, responsive, and searchable interface.
 
-The system uses a normalized many-to-many data model that links warehouses and products through a dedicated warehouse inventory table.
+The system uses a normalized many-to-many data model that links warehouses and products through a dedicated warehouse inventory table, ensuring accurate capacity tracking and real-time stock visibility.
 
 ---
 
@@ -18,19 +18,22 @@ The system uses a normalized many-to-many data model that links warehouses and p
 ### Warehouse Management
 - Create, update, and deactivate warehouses  
 - Track maximum and current capacity  
-- View warehouse dashboards with inventory counts  
-- Prevent adding inventory beyond capacity  
+- Automatic updates to capacity when inventory is added, updated, moved, or deleted  
+- Prevent adding inventory beyond warehouse limits  
+- Clean UI with validation, success alerts, and search filtering  
 
 ### Product Management
 - Create and manage a global catalog of skateboard products  
 - Store product attributes such as SKU, category, brand, and description  
-- Share products across multiple warehouses  
+- Prevent duplicate SKUs  
+- Share global products across all warehouses  
 
 ### Warehouse Inventory
 - Add products to specific warehouses with quantity and storage location  
-- Update quantities and track stock levels per warehouse  
-- Prevent duplicate warehouse–product entries  
-- Support (optional) inventory transfer logic  
+- Update quantities, move items between warehouses, or delete entries  
+- Built-in protection against duplicate warehouse–product pairs  
+- Transfer inventory with automatic capacity adjustments  
+- Search and filter warehouse inventory quickly  
 
 ---
 
@@ -38,46 +41,49 @@ The system uses a normalized many-to-many data model that links warehouses and p
 
 The system uses three core tables:
 
-### 1. `warehouse`
-Stores warehouse data such as name, location, capacity, and active status.
+### 1. `warehouses`
+Stores warehouse metadata including name, location, capacity limits, and active status.
 
-### 2. `product`
-Represents the global product catalog (SKUs, categories, brands, and descriptions).
+### 2. `products`
+Represents the global product catalog with SKUs, categories, brands, and detailed descriptions.
 
-### 3. `warehouse_inventory`
+### 3. `warehouse_inventories`
 A junction table connecting warehouses and products, containing:
 - `quantity`  
 - `storage_location`  
-- a unique `(warehouse_id, product_id)` constraint  
+- A unique `(warehouse_id, product_id)` constraint  
+- Enforced referential integrity with foreign keys  
 
-This structure forms a clean many-to-many relationship between warehouses and products.
+This structure forms a clean many-to-many relationship between warehouses and products while enabling scalable inventory management.
 
 ---
 
 ## 🔗 ERD
 
-```
 [ warehouse ] 1 --- ∞ [ warehouse_inventory ] ∞ --- 1 [ product ]
-```
+
+
+Project structure:
 
 /skate-inventory-management-system
- ├── backend/
- │    ├── src/main/java/
- │    ├── src/main/resources/
- │    └── pom.xml
- │
- ├── frontend/
- │    ├── src/app/
- │    ├── angular.json
- │    └── package.json
- │
- ├── README.md
- ├── .gitignore
- └── LICENSE
+├── backend/
+│ ├── src/main/java/
+│ ├── src/main/resources/
+│ └── pom.xml
+│
+├── frontend/
+│ ├── src/app/
+│ ├── angular.json
+│ └── package.json
+│
+├── README.md
+├── .gitignore
+└── LICENSE
 
- ---
 
-## 📚 API Endpoints (Planned)
+---
+
+## 📚 API Endpoints (Implemented & Planned)
 
 ### 🏢 Warehouse
 - `GET /warehouses`
@@ -93,23 +99,23 @@ This structure forms a clean many-to-many relationship between warehouses and pr
 - `DELETE /products/{id}`
 
 ### 🔄 Warehouse Inventory
-- `GET /warehouses/{id}/inventory`
-- `POST /warehouses/{id}/inventory`
+- `GET /warehouse-inventory`
+- `POST /warehouse-inventory`
 - `PUT /warehouse-inventory/{id}`
 - `DELETE /warehouse-inventory/{id}`
-- *(Optional)* `POST /inventory/transfer`
+- `POST /warehouse-inventory/transfer` *(Optional Advanced Feature)*
 
 ---
 
 ## 🧪 Future Enhancements
 
-- Low-stock alerts  
-- Warehouse capacity warnings  
-- Product expiration or obsolescence tracking  
-- Inventory transfer history  
+- Low-stock alerts and dashboard notifications  
+- Warehouse capacity warnings with visual indicators  
+- Inventory transfer logs and audit history  
 - Reporting features (CSV/PDF export)  
-- User authentication & role-based access  
-- UI dashboard metrics and charts  
+- Product expiration or obsolescence tracking  
+- Role-based authentication (Admin/User)  
+- Enhanced analytic dashboards and charts  
 
 ---
 
@@ -128,7 +134,7 @@ For significant changes, please open an issue first to discuss the proposed upda
 
 ## 📸 Screenshots (To Be Added)
 
-<!-- You can later add something like: -->
+<!-- Add screenshots when UI is finalized -->
 <!-- ![Dashboard Screenshot](images/dashboard.png) -->
 <!-- ![Warehouse View](images/warehouse-view.png) -->
 
@@ -136,6 +142,6 @@ For significant changes, please open an issue first to discuss the proposed upda
 
 ## 🙌 Acknowledgments
 
-- SkillStorm Full-Stack Java Program  
-- Open-source Java & Angular communities  
-- PostgreSQL documentation  
+- SkillStorm Full-Stack Java Developer Program  
+- Open-source Java, Spring, and Angular communities  
+- PostgreSQL and pgAdmin tools  
