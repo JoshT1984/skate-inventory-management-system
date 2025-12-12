@@ -1,40 +1,240 @@
-<main>
-  <h1>WAREHOUSES</h1>
-  <!-- Hiding table if there are no sales -->
-  @if(warehouses.length){
-  <table>
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>name</th>
-        <th>location</th>
-        <th>address</th>
-        <th>maxCapacity</th>
-        <th>currentCapacity</th>
-        <th>code</th>
-        <th>createdAt</th>
-        <th>updatedAt</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (warehouse of warehouses; track $index){
-      <tr>
-        <td>{{ warehouse.warehouseId }}</td>
-        <td>{{ warehouse.name }}</td>
-        <td>{{ warehouse.location }}</td>
-        <td>{{ warehouse.address }}</td>
-        <td>{{ warehouse.maxCapacity }}</td>
-        <td>{{ warehouse.currentCapacity }}</td>
-        <td>{{ warehouse.code }}</td>
-        <td>{{ warehouse.createdAt | date : 'yyyy-MM-dd HH:mm:ss' }}</td>
-        <td>{{ warehouse.updatedAt | date : 'yyyy-MM-dd HH:mm:ss' }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
-  }
-  <!--EVENT BINDING-->
-  <!-- <div>
-    <button type="button" (click)="addMockWarehouse()">Add</button>
-  </div> -->
+<main class="page">
+  <h2>Warehouses</h2>
+
+  <!-- TOP-LEVEL MESSAGES -->
+  <div *ngIf="apiError" class="alert alert-error">
+    {{ apiError }}
+  </div>
+  <div *ngIf="apiSuccess" class="alert alert-success">
+    {{ apiSuccess }}
+  </div>
+
+  <!-- CREATE WAREHOUSE -->
+  <section class="card-section">
+    <h3>Add New Warehouse</h3>
+
+    <form #createWarehouseForm="ngForm" (ngSubmit)="createWarehouse(createWarehouseForm)">
+      <label>
+        Name
+        <input
+          type="text"
+          name="newName"
+          [(ngModel)]="newWarehouseForm.name"
+          required
+          #newName="ngModel"
+        />
+        <span class="error-message" *ngIf="newName.invalid && newName.touched">
+          Name is required.
+        </span>
+      </label>
+
+      <label>
+        Location
+        <input
+          type="text"
+          name="newLocation"
+          [(ngModel)]="newWarehouseForm.location"
+          required
+          #newLocation="ngModel"
+        />
+        <span class="error-message" *ngIf="newLocation.invalid && newLocation.touched">
+          Location is required.
+        </span>
+      </label>
+
+      <label>
+        Address
+        <input
+          type="text"
+          name="newAddress"
+          [(ngModel)]="newWarehouseForm.address"
+          required
+          #newAddress="ngModel"
+        />
+        <span class="error-message" *ngIf="newAddress.invalid && newAddress.touched">
+          Address is required.
+        </span>
+      </label>
+
+      <label>
+        Max Capacity
+        <input
+          type="number"
+          name="newMaxCapacity"
+          [(ngModel)]="newWarehouseForm.maxCapacity"
+          required
+          min="1"
+          #newMaxCapacity="ngModel"
+        />
+        <span class="error-message" *ngIf="newMaxCapacity.invalid && newMaxCapacity.touched">
+          Max capacity must be at least 1.
+        </span>
+      </label>
+
+      <label>
+        Current Capacity
+        <input
+          type="number"
+          name="newCurrentCapacity"
+          [(ngModel)]="newWarehouseForm.currentCapacity"
+          required
+          min="0"
+          [max]="newWarehouseForm.maxCapacity"
+          #newCurrentCapacity="ngModel"
+        />
+        <span
+          class="error-message"
+          *ngIf="newCurrentCapacity.invalid && newCurrentCapacity.touched"
+        >
+          Current capacity cannot exceed max capacity.
+        </span>
+      </label>
+
+      <label>
+        Warehouse Code
+        <input
+          type="text"
+          name="newCode"
+          [(ngModel)]="newWarehouseForm.code"
+          required
+          minlength="2"
+          #newCode="ngModel"
+        />
+        <span class="error-message" *ngIf="newCode.invalid && newCode.touched">
+          Code is required and must be at least 2 characters.
+        </span>
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="createWarehouseForm.invalid || isLoading">
+          Create Warehouse
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- EDIT WAREHOUSE -->
+  <section class="card-section" *ngIf="editingWarehouse">
+    <h3>Edit Warehouse</h3>
+
+    <form #editWarehouseForm="ngForm" (ngSubmit)="updateWarehouse()">
+      <label>
+        Name
+        <input
+          type="text"
+          name="editName"
+          [(ngModel)]="editingWarehouse.name"
+          required
+          #editName="ngModel"
+        />
+      </label>
+
+      <label>
+        Location
+        <input
+          type="text"
+          name="editLocation"
+          [(ngModel)]="editingWarehouse.location"
+          required
+          #editLocation="ngModel"
+        />
+      </label>
+
+      <label>
+        Address
+        <input
+          type="text"
+          name="editAddress"
+          [(ngModel)]="editingWarehouse.address"
+          required
+          #editAddress="ngModel"
+        />
+      </label>
+
+      <label>
+        Max Capacity
+        <input
+          type="number"
+          name="editMaxCapacity"
+          [(ngModel)]="editingWarehouse.maxCapacity"
+          required
+          min="1"
+          #editMaxCapacity="ngModel"
+        />
+      </label>
+
+      <label>
+        Current Capacity
+        <input
+          type="number"
+          name="editCurrentCapacity"
+          [(ngModel)]="editingWarehouse.currentCapacity"
+          required
+          min="0"
+          [max]="editingWarehouse.maxCapacity"
+          #editCurrentCapacity="ngModel"
+        />
+      </label>
+
+      <label>
+        Warehouse Code
+        <input
+          type="text"
+          name="editCode"
+          [(ngModel)]="editingWarehouse.code"
+          required
+          minlength="2"
+          #editCode="ngModel"
+        />
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="editWarehouseForm.invalid || isLoading">
+          Save Changes
+        </button>
+        <button type="button" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- WAREHOUSE LIST -->
+  <section class="card-section">
+    <div class="section-header">
+      <h3>Warehouse List</h3>
+      <span class="loading-label" *ngIf="isLoading">Loading...</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Location</th>
+          <th>Address</th>
+          <th>Max Cap</th>
+          <th>Current Cap</th>
+          <th>Code</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let w of warehouses">
+          <td>{{ w.name }}</td>
+          <td>{{ w.location }}</td>
+          <td>{{ w.address }}</td>
+          <td>{{ w.maxCapacity }}</td>
+          <td>{{ w.currentCapacity }}</td>
+          <td>{{ w.code }}</td>
+          <td class="actions-col">
+            <button (click)="startEdit(w)">Edit</button>
+            <button (click)="deleteWarehouse(w.warehouseId)" [disabled]="isLoading">Delete</button>
+          </td>
+        </tr>
+
+        <tr *ngIf="!isLoading && warehouses.length === 0">
+          <td colspan="7">No warehouses found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 </main>

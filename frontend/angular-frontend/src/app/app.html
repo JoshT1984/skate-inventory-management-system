@@ -1,16 +1,9 @@
-<!-- we can add a component directly using its selector, like this-->
-<!-- find the selector name in the @Component decorator for that component-->
-<!-- they're all app-<COMPONENT NAME> by default-->
+<div class="app-container">
+  <app-header></app-header>
 
-<app-header />
-<!--
- Keep the router-outlet tag on your page
+  <main class="app-content">
+    <router-outlet></router-outlet>
+  </main>
 
- The "pages" to which we navigate will display in the router-outlet.
-
- Anything that's "static" (on every page) can be called directly
--->
-<router-outlet />
-<!-- Any components nested inside the component that is added to the router-outlet will get loaded as well-->
-<app-footer />
-
+  <app-footer></app-footer>
+</div>

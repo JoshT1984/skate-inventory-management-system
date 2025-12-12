@@ -1,35 +1,174 @@
-<main>
-  <section>
-    <h1>PRODUCTS</h1>
-    <!-- Hiding table if there are no sales -->
-    @if(products.length){
+<main class="page">
+  <h2>Products</h2>
+  <input type="text" placeholder="Search products..." [(ngModel)]="searchTerm" class="search-box" />
+
+  <!-- TOP-LEVEL MESSAGES -->
+  <div *ngIf="apiError" class="alert alert-error">
+    {{ apiError }}
+  </div>
+  <div *ngIf="apiSuccess" class="alert alert-success">
+    {{ apiSuccess }}
+  </div>
+
+  <!-- CREATE PRODUCT -->
+  <section class="card-section">
+    <h3>Add New Product</h3>
+
+    <form #createProductForm="ngForm" (ngSubmit)="createProduct()">
+      <label>
+        Name
+        <input
+          type="text"
+          name="newName"
+          [(ngModel)]="newProductForm.name"
+          required
+          #newName="ngModel"
+        />
+        <span class="error-message" *ngIf="newName.invalid && newName.touched">
+          Name is required.
+        </span>
+      </label>
+
+      <label>
+        SKU
+        <input
+          type="text"
+          name="newSku"
+          [(ngModel)]="newProductForm.sku"
+          required
+          #newSku="ngModel"
+        />
+        <span class="error-message" *ngIf="newSku.invalid && newSku.touched">
+          SKU is required.
+        </span>
+      </label>
+
+      <label>
+        Category
+        <input type="text" name="newCategory" [(ngModel)]="newProductForm.category" />
+      </label>
+
+      <label>
+        Brand
+        <input type="text" name="newBrand" [(ngModel)]="newProductForm.brand" />
+      </label>
+
+      <label>
+        Description
+        <textarea
+          name="newDescription"
+          rows="2"
+          [(ngModel)]="newProductForm.description"
+        ></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="createProductForm.invalid || isLoading">
+          Create Product
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- EDIT PRODUCT -->
+  <section class="card-section" *ngIf="editingProduct">
+    <h3>Edit Product</h3>
+
+    <form #editProductForm="ngForm" (ngSubmit)="updateProduct()">
+      <label>
+        Name
+        <input
+          type="text"
+          name="editName"
+          [(ngModel)]="editingProduct.name"
+          required
+          #editName="ngModel"
+        />
+        <span class="error-message" *ngIf="editName.invalid && editName.touched">
+          Name is required.
+        </span>
+      </label>
+
+      <label>
+        SKU
+        <input
+          type="text"
+          name="editSku"
+          [(ngModel)]="editingProduct.sku"
+          required
+          #editSku="ngModel"
+        />
+        <span class="error-message" *ngIf="editSku.invalid && editSku.touched">
+          SKU is required.
+        </span>
+      </label>
+
+      <label>
+        Category
+        <input type="text" name="editCategory" [(ngModel)]="editingProduct.category" />
+      </label>
+
+      <label>
+        Brand
+        <input type="text" name="editBrand" [(ngModel)]="editingProduct.brand" />
+      </label>
+
+      <label>
+        Description
+        <textarea
+          name="editDescription"
+          rows="2"
+          [(ngModel)]="editingProduct.description"
+        ></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="editProductForm.invalid || isLoading">
+          Save Changes
+        </button>
+        <button type="button" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- PRODUCT LIST -->
+  <section class="card-section">
+    <div class="section-header">
+      <h3>Product List</h3>
+      <span class="loading-label" *ngIf="isLoading">Loading...</span>
+    </div>
+
     <table>
       <thead>
         <tr>
-          <th>Id</th>
-          <th>name</th>
-          <th>sku</th>
-          <th>category</th>
-          <th>brand</th>
-          <th>description</th>
+          <th>Name</th>
+          <th>SKU</th>
+          <th>Category</th>
+          <th>Brand</th>
+          <th>Description</th>
+          <th class="actions-col">Actions</th>
         </tr>
       </thead>
+
       <tbody>
-        @for (product of products; track $index){
-        <tr>
-          <td>{{ product.productId }}</td>
+        <tr *ngFor="let product of filteredProducts">
           <td>{{ product.name }}</td>
           <td>{{ product.sku }}</td>
           <td>{{ product.category }}</td>
           <td>{{ product.brand }}</td>
           <td>{{ product.description }}</td>
-          <td>
-            <button type="button" (click)="deleteProduct(product.productId)">Delete</button>
+          <td class="actions-col">
+            <button type="button" (click)="startEdit(product)">Edit</button>
+            <button type="button" (click)="deleteProduct(product.productId)" [disabled]="isLoading">
+              Delete
+            </button>
           </td>
         </tr>
-        }
+
+        <tr *ngIf="!isLoading && products.length === 0">
+          <td colspan="6">No products found.</td>
+        </tr>
       </tbody>
     </table>
-    }
   </section>
 </main>

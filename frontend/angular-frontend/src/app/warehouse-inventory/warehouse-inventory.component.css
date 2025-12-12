@@ -1,3 +1,97 @@
-table {
-  text-align: left;
+.page h2 {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Card-style sections */
+.card-section {
+  background-color: #ffffff;
+  padding: 16px 20px;
+  margin: 16px 0;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-section h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+/* Top-level alerts */
+.alert {
+  padding: 10px 12px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.alert-error {
+  background-color: #ffe6e6;
+  border: 1px solid #d9534f;
+  color: #a94442;
+}
+
+.alert-success {
+  background-color: #e6ffec;
+  border: 1px solid #5cb85c;
+  color: #3c763d;
+}
+
+/* Forms */
+label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+input,
+textarea,
+select {
+  margin-top: 4px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+/* Invalid fields */
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border-color: #d9534f;
+  background-color: #fff5f5;
+}
+
+.error-message {
+  color: #a94442;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+/* Buttons row in forms */
+.form-actions {
+  margin-top: 12px;
+}
+
+/* Section header: title + loading text */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.loading-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Actions column in table */
+.actions-col {
+  white-space: nowrap;
+}
+
+.muted {
+  font-size: 0.85rem;
+  color: #777;
 }

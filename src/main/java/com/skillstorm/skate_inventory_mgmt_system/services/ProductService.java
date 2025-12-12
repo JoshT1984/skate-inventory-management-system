@@ -3,13 +3,13 @@ package com.skillstorm.skate_inventory_mgmt_system.services;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.skillstorm.skate_inventory_mgmt_system.api.DuplicateResourceException;
 import com.skillstorm.skate_inventory_mgmt_system.models.Product;
 import com.skillstorm.skate_inventory_mgmt_system.repositories.ProductRepository;
 import com.skillstorm.skate_inventory_mgmt_system.repositories.WarehouseInventoryRepository;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
@@ -83,14 +83,15 @@ public class ProductService {
     // DELETE
     @Transactional
     public void deleteProductById(int id) {
-        // Ensure the product exists first
-        if (!productRepository.existsById(id)) {
-            throw new NoSuchElementException("Product was not found by id: " + id);
-        }
-        // Delete all warehouse_inventory rows that reference this product
-        warehouseInventoryRepository.deleteByProductId(id);
+        // Load the product (or fail if not found)
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Product was not found by id: " + id));
 
-        // Deletes the product itself
-        productRepository.deleteById(id);
+        // Delete all warehouse_inventory rows that reference this product
+        warehouseInventoryRepository.deleteByProduct(product);
+
+        // Delete the product itself
+        productRepository.delete(product);
     }
 }

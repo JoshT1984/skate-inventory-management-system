@@ -1,7 +1,41 @@
-table {
-  text-align: left;
+.page h2 {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }
 
-section {
-  margin-bottom: 10em;
+.card-section {
+  background-color: #ffffff;
+  padding: 16px 20px;
+  margin: 16px 0;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card-section h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.loading-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Override for this table’s action column */
+.actions-col {
+  white-space: nowrap;
+}
+
+.search-box {
+  width: 250px;
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }

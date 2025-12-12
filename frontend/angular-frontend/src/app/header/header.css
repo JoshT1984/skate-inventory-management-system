@@ -1,8 +1,69 @@
-header {
-  text-align: center;
-  background-color: rgb(159, 43, 43);
-  padding-top: 0.15em;
-  font-size: 25px;
+/* Sticky Top Navigation Bar */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000; /* ensures it stays above scrolling content */
+  background: linear-gradient(to right, #321919, #b30000);
+  padding: 0.5em 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  height: 3.5;
+  box-sizing: border-box;
+}
+
+/* Brand Title */
+.topbar .brand {
+  font-size: 1.7rem;
   font-weight: bold;
-  text-decoration: underline;
+  letter-spacing: 1px;
+}
+
+/* Navigation Links */
+.nav-links {
+  display: flex;
+  gap: 2em;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: #ffdddd;
+}
+
+.left-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+}
+
+/* Bigger skateboard icon + rotation animation */
+.skate-icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 0.5em;
+
+  /* smooth infinite rotation */
+  animation: skateSpin 4s linear infinite;
+  transform-origin: center center;
+}
+
+/* Full 360° rotation */
+@keyframes skateSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

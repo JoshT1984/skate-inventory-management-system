@@ -6,19 +6,21 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.skillstorm.skate_inventory_mgmt_system.models.Product;
+import com.skillstorm.skate_inventory_mgmt_system.models.Warehouse;
 import com.skillstorm.skate_inventory_mgmt_system.models.WarehouseInventory;
 
 @Repository
 public interface WarehouseInventoryRepository extends JpaRepository<WarehouseInventory, Integer> {
 
-    boolean existsByWarehouseIdAndProductId(Integer warehouseId, Integer productId);
+    boolean existsByWarehouseAndProduct(Warehouse warehouse, Product product);
 
-    Optional<WarehouseInventory> findByWarehouseIdAndProductId(Integer warehouseId, Integer productId);
+    Optional<WarehouseInventory> findByWarehouseAndProduct(Warehouse warehouse, Product product);
 
-    List<WarehouseInventory> findByWarehouseId(Integer warehouseId);
+    List<WarehouseInventory> findByWarehouse(Warehouse warehouse);
 
-    List<WarehouseInventory> findByProductId(Integer productId);
+    List<WarehouseInventory> findByProduct(Product product);
 
     // delete all inventory rows for a given product
-    void deleteByProductId(Integer productId);
+    void deleteByProduct(Product product);
 }

@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.skillstorm.skate_inventory_mgmt_system.models.WarehouseInventory;
+import com.skillstorm.skate_inventory_mgmt_system.dtos.WarehouseInventoryRequest;
+import com.skillstorm.skate_inventory_mgmt_system.dtos.WarehouseInventoryResponse;
+import com.skillstorm.skate_inventory_mgmt_system.dtos.WarehouseInventoryTransferRequest;
 import com.skillstorm.skate_inventory_mgmt_system.services.WarehouseInventoryService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:4200") // allow Angular dev server
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/warehouse-inventory")
 public class WarehouseInventoryController {
@@ -32,63 +34,62 @@ public class WarehouseInventoryController {
 
     // CREATE
     @PostMapping
-    public ResponseEntity<WarehouseInventory> createWarehouseInventory(
-            @Valid @RequestBody WarehouseInventory inventory) {
+    public ResponseEntity<WarehouseInventoryResponse> createWarehouseInventory(
+            @Valid @RequestBody WarehouseInventoryRequest request) {
 
-        WarehouseInventory created = warehouseInventoryService.createWarehouseInventory(inventory);
+        WarehouseInventoryResponse created = warehouseInventoryService.createWarehouseInventory(request);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        // Validation errors -> MethodArgumentNotValidException -> 400 via
-        // GlobalExceptionHandler
-        // DuplicateResourceException / IllegalArgumentException -> handled globally
+    }
+
+    // CREATE/TRANSFER
+    @PostMapping("/transfer")
+    public void transfer(@RequestBody WarehouseInventoryTransferRequest dto) {
+        warehouseInventoryService.transferInventory(dto);
     }
 
     // READ ALL
     @GetMapping
-    public ResponseEntity<List<WarehouseInventory>> findAllInventory() {
-        List<WarehouseInventory> warehouseInventory = warehouseInventoryService.findAllInventory();
-        return ResponseEntity.ok(warehouseInventory);
+    public ResponseEntity<List<WarehouseInventoryResponse>> findAllInventory() {
+        return ResponseEntity.ok(warehouseInventoryService.findAllInventory());
     }
 
     // READ ONE BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<WarehouseInventory> findInventoryById(@PathVariable int id) {
-        WarehouseInventory inventory = warehouseInventoryService.findById(id);
-        return ResponseEntity.ok(inventory);
-        // If not found -> NoSuchElementException -> 404 via GlobalExceptionHandler
+    public ResponseEntity<WarehouseInventoryResponse> findInventoryById(@PathVariable int id) {
+        return ResponseEntity.ok(warehouseInventoryService.findById(id));
     }
 
-    // OPTIONAL: READ BY WAREHOUSE + PRODUCT
+    // READ BY WAREHOUSE + PRODUCT
     @GetMapping("/warehouse/{warehouseId}/product/{productId}")
-    public ResponseEntity<WarehouseInventory> findByWarehouseAndProduct(
+    public ResponseEntity<WarehouseInventoryResponse> findByWarehouseAndProduct(
             @PathVariable int warehouseId,
             @PathVariable int productId) {
 
-        WarehouseInventory inventory = warehouseInventoryService.findByWarehouseAndProduct(warehouseId, productId);
-        return ResponseEntity.ok(inventory);
+        return ResponseEntity.ok(
+                warehouseInventoryService.findByWarehouseAndProduct(warehouseId, productId));
     }
 
-    // PARTIAL UPDATE
+    // PARTIAL UPDATE (PATCH)
     @PatchMapping("/{id}")
-    public ResponseEntity<WarehouseInventory> warehouseInventoryPartialUpdate(
+    public ResponseEntity<WarehouseInventoryResponse> warehouseInventoryPartialUpdate(
             @PathVariable int id,
-            @RequestBody WarehouseInventory updates) {
+            @RequestBody WarehouseInventoryRequest updates) {
 
-        if (updates == null) {
-            throw new IllegalArgumentException("Empty request body.");
-        }
-
-        boolean noFields = updates.getWarehouseId() == null &&
-                updates.getProductId() == null &&
-                updates.getQuantity() == null &&
-                updates.getStorageLocation() == null;
+        boolean noFields = updates == null
+                || (updates.warehouseId == null
+                        && updates.productId == null
+                        && updates.quantity == null
+                        && (updates.storageLocation == null
+                                || updates.storageLocation.isBlank()));
 
         if (noFields) {
             throw new IllegalArgumentException("No fields provided to update.");
         }
 
-        WarehouseInventory updated = warehouseInventoryService.updateWarehouseInventoryPartial(id, updates);
+        WarehouseInventoryResponse updated = warehouseInventoryService.updateWarehouseInventoryPartial(id, updates);
+
         return ResponseEntity.ok(updated);
-        // Exceptions bubble to GlobalExceptionHandler
     }
 
     // DELETE
@@ -96,6 +97,5 @@ public class WarehouseInventoryController {
     public ResponseEntity<Void> deleteWarehouseInventory(@PathVariable int id) {
         warehouseInventoryService.deleteWarehouseInventoryById(id);
         return ResponseEntity.noContent().build();
-        // If not found -> NoSuchElementException -> 404 via GlobalExceptionHandler
     }
 }

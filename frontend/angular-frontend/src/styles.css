@@ -1,21 +1,93 @@
-/* You can add global styles to this file, and also import other style files */
-
-/* HOWEVER, due to the application structure, not everything will work here the way you want */
-
-* {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
+/* RESET & BASE */
+html,
 body {
-  margin: 0px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #fafafa;
 }
 
-main {
-  padding: 12px;
+/* App container for full-height pages */
+.app-container {
+  min-height: 100vh; /* full viewport height */
+  display: flex;
+  flex-direction: column; /* stack: header → content → footer */
 }
 
-h1 {
-  margin: 0px 0px 12px 0px;
-  font-size: 28px;
+/* Main content grows to push footer to the bottom */
+.app-content {
+  flex: 1;
+  padding: 1em;
+  padding-top: 4rem; /* was 84 — increase to clear <h1> headings */
+}
+
+/* GLOBAL TABLE STYLES */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: white;
+}
+
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+table th {
+  background-color: #f1f1f1;
+  text-align: left;
+}
+
+/* GLOBAL BUTTON STYLING */
+button {
+  padding: 6px 12px;
+  border: none;
+  background-color: #0078d7;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  margin: 0.25em;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+button:disabled {
+  background-color: #9bbbd4;
+  cursor: not-allowed;
+}
+
+.app-content {
+  flex: 1;
+}
+
+/* Global alert styles (styles.css) */
+
+.alert {
+  padding: 10px 14px;
+  margin: 10px 0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+}
+
+/* Error: red */
+.alert-error {
+  background-color: #fee2e2; /* light red */
+  border-color: #dc2626; /* strong red */
+  color: #7f1d1d; /* dark red text */
+}
+
+/* Success: brighter green and bolder */
+.alert-success {
+  background-color: #dcfce7; /* bright light green */
+  border-color: #16a34a; /* emerald border */
+  color: #14532d; /* deep green text */
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
 }

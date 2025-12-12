@@ -2,14 +2,16 @@ package com.skillstorm.skate_inventory_mgmt_system.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -22,13 +24,13 @@ public class WarehouseInventory {
     @Column(name = "warehouse_inventory_id", nullable = false)
     private Integer warehouseInventoryId;
 
-    @NotNull
-    @Column(name = "warehouse_id", nullable = false)
-    private Integer warehouseId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
 
-    @NotNull
-    @Column(name = "product_id", nullable = false)
-    private Integer productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Min(0)
     @Column(nullable = false)
@@ -43,12 +45,12 @@ public class WarehouseInventory {
         // Required by JPA
     }
 
-    public WarehouseInventory(Integer warehouseId,
-            Integer productId,
+    public WarehouseInventory(Warehouse warehouse,
+            Product product,
             Integer quantity,
             String storageLocation) {
-        this.warehouseId = warehouseId;
-        this.productId = productId;
+        this.warehouse = warehouse;
+        this.product = product;
         this.quantity = quantity;
         this.storageLocation = storageLocation;
     }
@@ -61,20 +63,20 @@ public class WarehouseInventory {
         this.warehouseInventoryId = warehouseInventoryId;
     }
 
-    public Integer getWarehouseId() {
-        return warehouseId;
+    public Warehouse getWarehouse() {
+        return warehouse;
     }
 
-    public void setWarehouseId(Integer warehouseId) {
-        this.warehouseId = warehouseId;
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
     }
 
-    public Integer getProductId() {
-        return productId;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setProductId(Integer productId) {
-        this.productId = productId;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     public Integer getQuantity() {
@@ -94,35 +96,10 @@ public class WarehouseInventory {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((warehouseInventoryId == null) ? 0 : warehouseInventoryId.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        WarehouseInventory other = (WarehouseInventory) obj;
-        if (warehouseInventoryId == null) {
-            if (other.warehouseInventoryId != null)
-                return false;
-        } else if (!warehouseInventoryId.equals(other.warehouseInventoryId))
-            return false;
-        return true;
-    }
-
-    @Override
     public String toString() {
         return "WarehouseInventory [warehouseInventoryId=" + warehouseInventoryId
-                + ", warehouseId=" + warehouseId
-                + ", productId=" + productId
+                + ", warehouseId=" + (warehouse != null ? warehouse.getWarehouseId() : null)
+                + ", productId=" + (product != null ? product.getProductId() : null)
                 + ", quantity=" + quantity
                 + ", storageLocation=" + storageLocation + "]";
     }

@@ -1,5 +1,6 @@
+// src/app/models/warehouse-inventory.model.ts
 export class WarehouseInventory {
-  warehouseInventoryId: number;
+  warehouseInventoryId?: number;
   warehouseId: number;
   productId: number;
   quantity: number;

@@ -1,3 +1,4 @@
+// src/app/models/warehouse.model.ts
 export class Warehouse {
   warehouseId: number;
   name: string;

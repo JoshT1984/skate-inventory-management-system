@@ -1,4 +1,4 @@
-// warehouse.service.ts
+// src/app/services/warehouse.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -12,9 +12,23 @@ export class WarehouseService {
 
   constructor(private http: HttpClient) {}
 
+  // READ ALL
   getAllWarehouses(): Observable<Warehouse[]> {
     return this.http.get<Warehouse[]>(this.baseUrl);
   }
 
-  // Add create/update/delete later if needed
+  // CREATE (no warehouseId in payload)
+  createWarehouse(warehouse: any): Observable<Warehouse> {
+    return this.http.post<Warehouse>(this.baseUrl, warehouse);
+  }
+
+  // UPDATE (PATCH)
+  updateWarehouse(warehouse: Warehouse): Observable<Warehouse> {
+    return this.http.patch<Warehouse>(`${this.baseUrl}/${warehouse.warehouseId}`, warehouse);
+  }
+
+  // DELETE
+  deleteWarehouse(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }
