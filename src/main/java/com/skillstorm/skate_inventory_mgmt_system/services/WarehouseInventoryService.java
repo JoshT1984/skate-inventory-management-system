@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.skillstorm.skate_inventory_mgmt_system.api.DuplicateResourceException;
 import com.skillstorm.skate_inventory_mgmt_system.dtos.WarehouseInventoryRequest;
 import com.skillstorm.skate_inventory_mgmt_system.dtos.WarehouseInventoryResponse;
@@ -17,6 +14,9 @@ import com.skillstorm.skate_inventory_mgmt_system.models.WarehouseInventory;
 import com.skillstorm.skate_inventory_mgmt_system.repositories.ProductRepository;
 import com.skillstorm.skate_inventory_mgmt_system.repositories.WarehouseInventoryRepository;
 import com.skillstorm.skate_inventory_mgmt_system.repositories.WarehouseRepository;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class WarehouseInventoryService {
@@ -281,8 +281,8 @@ public class WarehouseInventoryService {
                                 .orElseGet(() -> {
                                         WarehouseInventory inv = new WarehouseInventory();
                                         inv.setWarehouse(destWarehouse);
-                                        inv.setProduct(product); 
-                                                      
+                                        inv.setProduct(product);
+
                                         inv.setQuantity(0);
                                         inv.setStorageLocation(sourceInventory.getStorageLocation());
                                         return inv;
@@ -292,7 +292,7 @@ public class WarehouseInventoryService {
                 int newSourceQty = sourceInventory.getQuantity() - transferQty;
                 sourceInventory.setQuantity(newSourceQty);
 
-                int destCurrent = destInventory.getQuantity() == null ? 0 : destInventory.getQuantity();
+                int destCurrent = safeInt(destInventory.getQuantity());
                 destInventory.setQuantity(destCurrent + transferQty);
 
                 // 6) Update warehouse capacities using your existing helper
