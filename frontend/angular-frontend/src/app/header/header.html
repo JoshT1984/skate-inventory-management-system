@@ -4,9 +4,54 @@
     <div class="brand">Skate Supply</div>
   </div>
 
-  <nav class="nav-links">
+  <!-- Desktop nav -->
+  <nav class="nav-links" aria-label="Primary navigation">
     <a routerLink="/products" routerLinkActive="active-link">Products</a>
     <a routerLink="/warehouses" routerLinkActive="active-link">Warehouses</a>
-    <a routerLink="/warehouse-inventory" routerLinkActive="active-link"> Inventory </a>
+    <a routerLink="/warehouse-inventory" routerLinkActive="active-link">Inventory</a>
   </nav>
+
+  <!-- Mobile hamburger -->
+  <button
+    type="button"
+    class="hamburger"
+    aria-label="Open menu"
+    (click)="toggleDrawer()"
+  >
+    ☰
+  </button>
 </header>
+
+<!-- Backdrop -->
+<div
+  class="drawer-backdrop"
+  *ngIf="isDrawerOpen"
+  (click)="closeDrawer()"
+  aria-hidden="true"
+></div>
+
+<!-- Drawer -->
+<aside class="drawer" [class.open]="isDrawerOpen" aria-label="Mobile menu">
+  <div class="drawer-header">
+    <div class="drawer-title">Menu</div>
+    <button type="button" class="drawer-close" aria-label="Close menu" (click)="closeDrawer()">
+      ✕
+    </button>
+  </div>
+
+  <nav class="drawer-links">
+    <a routerLink="/products" routerLinkActive="active-link" (click)="closeDrawer()">
+      Products
+    </a>
+    <a routerLink="/warehouses" routerLinkActive="active-link" (click)="closeDrawer()">
+      Warehouses
+    </a>
+    <a
+      routerLink="/warehouse-inventory"
+      routerLinkActive="active-link"
+      (click)="closeDrawer()"
+    >
+      Inventory
+    </a>
+  </nav>
+</aside>

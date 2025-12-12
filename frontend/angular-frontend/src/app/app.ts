@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Footer } from './footer/footer';
-import { Header } from './header/header';
+import { HeaderComponent } from './header/header';
 
 // this is a decorator
 // components use @Component, which creates HTML/CSS/TS/spec.TS files
@@ -11,7 +11,7 @@ import { Header } from './header/header';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, Header, Footer, CommonModule],
+  imports: [RouterOutlet, HeaderComponent, Footer, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

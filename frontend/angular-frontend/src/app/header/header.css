@@ -1,69 +1,220 @@
+/* ========================= */
+/* Prevent background scroll */
+/* ========================= */
+:global(body.no-scroll) {
+  overflow: hidden;
+}
+
+/* ========================= */
 /* Sticky Top Navigation Bar */
+/* ========================= */
 .topbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   width: 100%;
-  z-index: 1000; /* ensures it stays above scrolling content */
+  z-index: 1000;
+
   background: linear-gradient(to right, #321919, #b30000);
   padding: 0.5em 1em;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   color: white;
-  height: 3.5;
   box-sizing: border-box;
 }
 
-/* Brand Title */
-.topbar .brand {
-  font-size: 1.7rem;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-/* Navigation Links */
-.nav-links {
-  display: flex;
-  gap: 2em;
-}
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.nav-links a:hover {
-  color: #ffdddd;
-}
-
+/* ========================= */
+/* Brand Group */
+/* ========================= */
 .left-group {
   display: flex;
   align-items: center;
   gap: 0.75em;
 }
 
-/* Bigger skateboard icon + rotation animation */
+.topbar .brand {
+  font-size: 1.7rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* ========================= */
+/* Skateboard Icon */
+/* ========================= */
 .skate-icon {
   width: 40px;
   height: 40px;
   margin-right: 0.5em;
 
-  /* smooth infinite rotation */
   animation: skateSpin 4s linear infinite;
   transform-origin: center center;
 }
 
-/* Full 360° rotation */
 @keyframes skateSpin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ========================= */
+/* Desktop Navigation */
+/* ========================= */
+.nav-links {
+  display: flex;
+  gap: 2em;
+}
+
+.nav-links a {
+  display: inline-block;
+  cursor: pointer;
+
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: #ffdddd;
+}
+
+.active-link {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ========================= */
+/* Hamburger Button */
+/* ========================= */
+.hamburger {
+  display: none;
+  cursor: pointer;
+
+  background: none;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  color: white;
+  font-size: 1.4rem;
+
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+/* ========================= */
+/* Drawer Backdrop */
+/* ========================= */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* ========================= */
+/* Drawer */
+/* ========================= */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1200;
+
+  height: 100%;
+  width: min(320px, 85vw);
+
+  background: linear-gradient(to bottom, #321919, #7a0000);
+
+  transform: translateX(100%);
+  transition: transform 0.2s ease-in-out;
+
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+
+  /* KEY FIX: do not intercept clicks when closed */
+  pointer-events: none;
+}
+
+.drawer.open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* ========================= */
+/* Drawer Header */
+/* ========================= */
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 1em;
+  color: white;
+  font-weight: bold;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.drawer-close {
+  cursor: pointer;
+
+  background: none;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  color: white;
+  font-size: 1.2rem;
+
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* ========================= */
+/* Drawer Links */
+/* ========================= */
+.drawer-links {
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
+  gap: 0.75em;
+}
+
+.drawer-links a {
+  display: block;
+  cursor: pointer;
+
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+
+  padding: 10px;
+  border-radius: 6px;
+
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.drawer-links a.active-link {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ========================= */
+/* Responsive Behavior */
+/* ========================= */
+@media (max-width: 900px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }

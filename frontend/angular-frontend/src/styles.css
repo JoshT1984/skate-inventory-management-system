@@ -19,7 +19,7 @@ body {
 .app-content {
   flex: 1;
   padding: 1em;
-  padding-top: 4rem; /* was 84 — increase to clear <h1> headings */
+  padding-top: 4.5rem; /* was 84 — increase to clear <h1> headings */
 }
 
 /* GLOBAL TABLE STYLES */
