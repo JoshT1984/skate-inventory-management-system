@@ -132,11 +132,22 @@ For significant changes, please open an issue first to discuss the proposed upda
 
 ---
 
-## 📸 Screenshots (To Be Added)
+## 📸 Screenshots
 
-<!-- Add screenshots when UI is finalized -->
-<!-- ![Dashboard Screenshot](images/dashboard.png) -->
-<!-- ![Warehouse View](images/warehouse-view.png) -->
+<img width="1907" height="775" alt="Screenshot 2025-12-12 at 09 05 37" src="https://github.com/user-attachments/assets/a4e2bcfc-da26-4d89-8abb-4d8f3f1c64ab" />
+
+<img width="1895" height="716" alt="Screenshot 2025-12-12 at 09 05 09" src="https://github.com/user-attachments/assets/2b53c4be-cbee-431f-affa-398494a2f524" />
+
+<img width="1905" height="771" alt="Screenshot 2025-12-12 at 09 04 26" src="https://github.com/user-attachments/assets/ae7686e2-d524-4edb-a41e-528c9b72ba75" />
+
+<img width="763" height="853" alt="Screenshot 2025-12-12 at 09 25 37" src="https://github.com/user-attachments/assets/bd8b13fa-e582-4fdb-a32d-39f234717ae4" />
+
+<img width="756" height="852" alt="Screenshot 2025-12-12 at 09 25 46" src="https://github.com/user-attachments/assets/b291f76e-06bb-4622-91d9-e64ace2ca432" />
+
+
+
+
+
 
 ---
 
