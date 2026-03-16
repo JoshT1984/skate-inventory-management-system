@@ -10,7 +10,7 @@
   </div>
 
   <!-- CREATE WAREHOUSE -->
-  <section class="card-section">
+  <section class="card-section" *ngIf="canManage()">
     <h3>Add New Warehouse</h3>
 
     <form #createWarehouseForm="ngForm" (ngSubmit)="createWarehouse(createWarehouseForm)">
@@ -114,7 +114,7 @@
   </section>
 
   <!-- EDIT WAREHOUSE -->
-  <section class="card-section" *ngIf="editingWarehouse">
+  <section class="card-section" *ngIf="editingWarehouse && canManage()">
     <h3>Edit Warehouse</h3>
 
     <form #editWarehouseForm="ngForm" (ngSubmit)="updateWarehouse()">
@@ -213,7 +213,7 @@
           <th>Max Cap</th>
           <th>Current Cap</th>
           <th>Code</th>
-          <th class="actions-col">Actions</th>
+          <th class="actions-col" *ngIf="canManage()">Actions</th>
         </tr>
       </thead>
 
@@ -225,7 +225,7 @@
           <td>{{ w.maxCapacity }}</td>
           <td>{{ w.currentCapacity }}</td>
           <td>{{ w.code }}</td>
-          <td class="actions-col">
+          <td class="actions-col" *ngIf="canManage()">
             <button (click)="startEdit(w)">Edit</button>
             <button (click)="deleteWarehouse(w.warehouseId)" [disabled]="isLoading">Delete</button>
           </td>

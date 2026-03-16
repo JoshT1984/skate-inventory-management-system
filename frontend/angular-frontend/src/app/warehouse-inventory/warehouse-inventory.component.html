@@ -10,7 +10,7 @@
   </div>
 
   <!-- CREATE INVENTORY ITEM -->
-  <section class="card-section">
+  <section class="card-section" *ngIf="canTransfer()">
     <h3>Add Inventory Item</h3>
 
     <form #createInventoryForm="ngForm" (ngSubmit)="createInventory()">
@@ -95,7 +95,7 @@
   </section>
 
   <!-- EDIT INVENTORY ITEM -->
-  <section class="card-section" *ngIf="editingItem">
+  <section class="card-section" *ngIf="editingItem && canTransfer()">
     <h3>
       Edit Inventory Item
       <span class="muted"> (ID: {{ editingItem!.warehouseInventoryId }})</span>
@@ -184,7 +184,7 @@
   </section>
 
   <!-- TRANSFER INVENTORY ITEM -->
-  <section class="card-section" *ngIf="transferItem">
+  <section class="card-section" *ngIf="transferItem && canTransfer()">
     <h3>Transfer Inventory</h3>
     <p class="muted">
       Transferring Product ID {{ transferItem.productId }} from Warehouse
@@ -250,7 +250,7 @@
           <th>Product ID</th>
           <th>Quantity</th>
           <th>Storage Location</th>
-          <th class="actions-col">Actions</th>
+          <th class="actions-col" *ngIf="canTransfer()">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -259,7 +259,7 @@
           <td>{{ item.productId }}</td>
           <td>{{ item.quantity }}</td>
           <td>{{ item.storageLocation }}</td>
-          <td class="actions-col">
+          <td class="actions-col" *ngIf="canTransfer()">
             <button type="button" (click)="startEdit(item)">Edit</button>
             <button type="button" (click)="startTransfer(item)" [disabled]="isLoading">
               Transfer

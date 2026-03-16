@@ -7,6 +7,7 @@ import { Warehouse } from '../models/warehouse.model';
 import { ProductService } from '../services/product.service';
 import { WarehouseInventoryService } from '../services/warehouse-inventory.service';
 import { WarehouseService } from '../services/warehouse.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-warehouse-inventory',
@@ -55,7 +56,8 @@ export class WarehouseInventoryComponent implements OnInit {
     private inventoryService: WarehouseInventoryService,
     private cdr: ChangeDetectorRef,
     private warehouseService: WarehouseService,
-    private productService: ProductService
+    private productService: ProductService,
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -387,5 +389,13 @@ export class WarehouseInventoryComponent implements OnInit {
         this.cdr.detectChanges();
       }
     }, 3000);
+  }
+
+  canManage(): boolean {
+    return this.authService.hasAnyRole(['ADMIN', 'MANAGER']);
+  }
+
+  canTransfer(): boolean {
+    return this.authService.hasAnyRole(['ADMIN', 'MANAGER', 'EMPLOYEE']);
   }
 }

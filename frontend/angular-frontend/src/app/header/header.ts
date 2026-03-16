@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnDestroy, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -10,6 +11,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrls: ['./header.css'],
 })
 export class HeaderComponent implements OnDestroy {
+  readonly auth = inject(AuthService);
   isDrawerOpen = false;
 
   toggleDrawer(): void {
@@ -24,6 +26,19 @@ export class HeaderComponent implements OnDestroy {
   closeDrawer(): void {
     this.isDrawerOpen = false;
     document.body.classList.remove('no-scroll');
+  }
+
+  login(): void {
+    this.auth.login();
+  }
+
+  logout(): void {
+    this.auth.logout().subscribe();
+  }
+
+  displayName(): string {
+    const user = this.auth.currentUser();
+    return user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : 'Guest';
   }
 
   @HostListener('document:keydown.escape')

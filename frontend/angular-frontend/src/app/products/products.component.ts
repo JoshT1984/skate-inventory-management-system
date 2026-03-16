@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../models/product.model';
 import { ProductService } from '../services/product.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-products',
@@ -31,7 +32,7 @@ export class Products implements OnInit {
   isLoading = false;
   searchTerm: string = '';
 
-  constructor(private productService: ProductService, private cdr: ChangeDetectorRef) {}
+  constructor(private productService: ProductService, private cdr: ChangeDetectorRef, public authService: AuthService) {}
 
   ngOnInit(): void {
     this.getAllProducts();
@@ -238,5 +239,9 @@ export class Products implements OnInit {
         (p.category?.toLowerCase().includes(term) ?? false) ||
         (p.brand?.toLowerCase().includes(term) ?? false)
     );
+  }
+
+  canManage(): boolean {
+    return this.authService.hasAnyRole(['ADMIN', 'MANAGER']);
   }
 }

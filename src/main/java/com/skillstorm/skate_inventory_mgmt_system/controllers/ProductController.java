@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,7 +18,6 @@ import com.skillstorm.skate_inventory_mgmt_system.services.ProductService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:4200")  // allow Angular dev server
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -30,60 +28,29 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // CREATE
     @PostMapping
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
-        Product created = productService.createProduct(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(product));
     }
 
-    // READ ALL
     @GetMapping
     public ResponseEntity<List<Product>> findAllProducts() {
-        List<Product> products = productService.findAllProducts();
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productService.findAllProducts());
     }
 
-    // READ ONE
     @GetMapping("/{id}")
-    public ResponseEntity<Product> findProductById(@PathVariable int id) {
-        Product product = productService.findById(id);
-        return ResponseEntity.ok(product);
-        // If not found, ProductService throws NoSuchElementException
-        // -> handled by GlobalExceptionHandler as 404
+    public ResponseEntity<Product> findById(@PathVariable int id) {
+        return ResponseEntity.ok(productService.findById(id));
     }
 
-    // PARTIAL UPDATE (PATCH)
     @PatchMapping("/{id}")
-    public ResponseEntity<Product> productPartialUpdate(
-            @PathVariable int id,
-            @RequestBody Product updates) {
-
-        if (updates == null) {
-            throw new IllegalArgumentException("Empty request body.");
-        }
-
-        boolean noFields = updates.getName() == null &&
-                updates.getSku() == null &&
-                updates.getCategory() == null &&
-                updates.getBrand() == null &&
-                updates.getDescription() == null;
-
-        if (noFields) {
-            throw new IllegalArgumentException("No fields provided to update.");
-        }
-
-        Product updated = productService.updateProductPartial(id, updates);
-        return ResponseEntity.ok(updated);
-        // NoSuchElementException, DuplicateResourceException, IllegalArgumentException
-        // all handled by GlobalExceptionHandler.
+    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updates) {
+        return ResponseEntity.ok(productService.updateProductPartial(id, updates));
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable int id) {
         productService.deleteProductById(id);
         return ResponseEntity.noContent().build();
-        // If not found, service throws NoSuchElementException -> 404
     }
 }

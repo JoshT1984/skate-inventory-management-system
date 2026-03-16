@@ -1,13 +1,11 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
+import { LoginComponent } from './login/login.component';
 import { Products } from './products/products.component';
 import { WarehouseInventoryComponent } from './warehouse-inventory/warehouse-inventory.component';
 import { Warehouses } from './warehouses/warehouses.component';
 
-/**
- *  each item in the route array is a single path
- *  the path property is whatever's after the base URL in the browser
- *  the component property points to the component to load
- */
 export const routes: Routes = [
   {
     path: '',
@@ -15,18 +13,30 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'login',
+    component: LoginComponent,
+  },
+  {
     path: 'products',
     component: Products,
+    canActivate: [authGuard],
   },
   {
     path: 'warehouses',
     component: Warehouses,
+    canActivate: [authGuard],
   },
   {
     path: 'warehouse-inventory',
     component: WarehouseInventoryComponent,
+    canActivate: [authGuard],
   },
-  // Optional: wildcard to catch unknown routes
+  {
+    path: 'admin',
+    component: Warehouses,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN', 'MANAGER'] },
+  },
   {
     path: '**',
     redirectTo: 'products',

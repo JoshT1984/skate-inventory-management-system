@@ -2,13 +2,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { apiConfig } from '../core/api.config';
 import { Warehouse } from '../models/warehouse.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WarehouseService {
-  private baseUrl = 'http://localhost:8080/warehouses';
+  private baseUrl = `${apiConfig.apiBaseUrl}/warehouses`;
 
   constructor(private http: HttpClient) {}
 

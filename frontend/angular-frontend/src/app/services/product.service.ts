@@ -2,6 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { apiConfig } from '../core/api.config';
 import { Product } from '../models/product.model';
 
 @Injectable({
@@ -9,7 +10,7 @@ import { Product } from '../models/product.model';
 })
 export class ProductService {
   // Base URL to Postgres via Spring Boot
-  baseURL: string = 'http://localhost:8080/products';
+  baseURL: string = `${apiConfig.apiBaseUrl}/products`;
 
   constructor(private http: HttpClient) {}
 
