@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Warehouse } from '../models/warehouse.model';
 import { WarehouseService } from '../services/warehouse.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-warehouses',
@@ -30,7 +31,7 @@ export class Warehouses implements OnInit {
   apiSuccess: string | null = null;
   isLoading = false;
 
-  constructor(private warehouseService: WarehouseService, private cdr: ChangeDetectorRef) {}
+  constructor(private warehouseService: WarehouseService, private cdr: ChangeDetectorRef, public authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadWarehouses();
@@ -246,5 +247,9 @@ export class Warehouses implements OnInit {
         this.apiSuccess = null;
       }
     }, 3000);
+  }
+
+  canManage(): boolean {
+    return this.authService.hasAnyRole(['ADMIN', 'MANAGER']);
   }
 }

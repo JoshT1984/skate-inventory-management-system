@@ -1,19 +1,57 @@
 spring:
   application:
     name: skate-inventory-mgmt-system
+  config:
+    import: "optional:file:.env[.properties],optional:file:backend/.env[.properties]"
   datasource:
-    url: jdbc:postgresql://localhost:5432/skatedb
-    username: skate_user
-    password: "!@#D3v3lop3r!@#"
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://${RDS_HOSTNAME:localhost}:${RDS_PORT:5432}/${RDS_DB_NAME:skatedb}}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${RDS_USERNAME:skate_user}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${RDS_PASSWORD:postgres}}}
     driver-class-name: org.postgresql.Driver
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: ${SESSION_INIT_SCHEMA:never}
+      schema: classpath:org/springframework/session/jdbc/schema-postgresql.sql
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:never}
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
   jpa:
     hibernate:
-      ddl-auto: none # schema created manually
+      ddl-auto: none
+    open-in-view: false
     defer-datasource-initialization: true
-  output:
-    ansi:
-      enabled: ALWAYS #Pretty Colors
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope: [openid, profile, email]
+            redirect-uri: "${OAUTH_REDIRECT_URI:https://your-cloudfront-domain.example.com/api/login/oauth2/code/{registrationId}}"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+server:
+  port: ${PORT:${SERVER_PORT:8080}}
+  forward-headers-strategy: framework
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        same-site: none
+        secure: true
+        http-only: true
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
 logging:
   level:
-    com:
-      skillstorm: debug
+    com.skillstorm: DEBUG
+    org.springframework.security: INFO

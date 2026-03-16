@@ -11,7 +11,7 @@
   </div>
 
   <!-- CREATE PRODUCT -->
-  <section class="card-section">
+  <section class="card-section" *ngIf="canManage()">
     <h3>Add New Product</h3>
 
     <form #createProductForm="ngForm" (ngSubmit)="createProduct()">
@@ -71,7 +71,7 @@
   </section>
 
   <!-- EDIT PRODUCT -->
-  <section class="card-section" *ngIf="editingProduct">
+  <section class="card-section" *ngIf="editingProduct && canManage()">
     <h3>Edit Product</h3>
 
     <form #editProductForm="ngForm" (ngSubmit)="updateProduct()">
@@ -146,7 +146,7 @@
           <th>Category</th>
           <th>Brand</th>
           <th>Description</th>
-          <th class="actions-col">Actions</th>
+          <th class="actions-col" *ngIf="canManage()">Actions</th>
         </tr>
       </thead>
 
@@ -157,7 +157,7 @@
           <td>{{ product.category }}</td>
           <td>{{ product.brand }}</td>
           <td>{{ product.description }}</td>
-          <td class="actions-col">
+          <td class="actions-col" *ngIf="canManage()">
             <button type="button" (click)="startEdit(product)">Edit</button>
             <button type="button" (click)="deleteProduct(product.productId)" [disabled]="isLoading">
               Delete
