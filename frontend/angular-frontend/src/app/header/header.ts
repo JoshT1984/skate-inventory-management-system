@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnDestroy, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -12,6 +12,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class HeaderComponent implements OnDestroy {
   readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   isDrawerOpen = false;
 
   toggleDrawer(): void {
@@ -29,11 +30,14 @@ export class HeaderComponent implements OnDestroy {
   }
 
   login(): void {
-    this.auth.login();
+    this.closeDrawer();
+    this.router.navigate(['/login']);
   }
 
   logout(): void {
-    this.auth.logout().subscribe();
+    this.auth.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 
   displayName(): string {

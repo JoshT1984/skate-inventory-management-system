@@ -9,7 +9,7 @@ import { Warehouses } from './warehouses/warehouses.component';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'products',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
   {
@@ -39,6 +39,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'products',
+    redirectTo: 'login',
   },
 ];
