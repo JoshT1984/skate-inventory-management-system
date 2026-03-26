@@ -6,22 +6,27 @@ TRUNCATE TABLE user_roles RESTART IDENTITY CASCADE;
 TRUNCATE TABLE roles RESTART IDENTITY CASCADE;
 TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 
-INSERT INTO roles (name) VALUES ('GUEST'), ('EMPLOYEE'), ('MANAGER'), ('ADMIN') ON CONFLICT (name) DO NOTHING;
+INSERT INTO roles (name) VALUES
+('ROLE_GUEST'),
+('ROLE_EMPLOYEE'),
+('ROLE_MANAGER'),
+('ROLE_ADMIN')
+ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO users (first_name, last_name, email, status) VALUES
-('Joshua', 'Admin', 'joshuathompson0526@gmail.com', 'ACTIVE'),
-('Karen', 'Manager', 'karenthompson8707@gmail.com', 'ACTIVE'),
-('Demo', 'Employee', 'warehouse.employee@example.com', 'ACTIVE'),
-('Demo', 'Guest', 'shop.guest@example.com', 'ACTIVE');
+INSERT INTO users (first_name, last_name, email, status, created_at, updated_at) VALUES
+('Joshua', 'Admin', 'joshuathompson0526@gmail.com', 'ACTIVE', NOW(), NOW()),
+('Karen', 'Manager', 'karenthompson8707@gmail.com', 'ACTIVE', NOW(), NOW()),
+('Demo', 'Employee', 'warehouse.employee@example.com', 'ACTIVE', NOW(), NOW()),
+('Demo', 'Guest', 'shop.guest@example.com', 'ACTIVE', NOW(), NOW());
 
 INSERT INTO user_roles (user_id, role_id)
-SELECT 1, role_id FROM roles WHERE name = 'ADMIN'
+SELECT 1, role_id FROM roles WHERE name = 'ROLE_ADMIN'
 UNION ALL
-SELECT 2, role_id FROM roles WHERE name = 'MANAGER'
+SELECT 2, role_id FROM roles WHERE name = 'ROLE_MANAGER'
 UNION ALL
-SELECT 3, role_id FROM roles WHERE name = 'EMPLOYEE'
+SELECT 3, role_id FROM roles WHERE name = 'ROLE_EMPLOYEE'
 UNION ALL
-SELECT 4, role_id FROM roles WHERE name = 'GUEST';
+SELECT 4, role_id FROM roles WHERE name = 'ROLE_GUEST';
 
 INSERT INTO products (name, sku, category, brand, description) VALUES
 ('Street Deck 8.0" Pro Model', 'SKU-0001-DECK80', 'Deck', 'Baker', '8.0 inch 7-ply maple deck for technical street skating.'),
@@ -33,10 +38,10 @@ INSERT INTO products (name, sku, category, brand, description) VALUES
 ('Classic Certified Helmet', 'SKU-0017-HELM-PRO', 'Safety', 'Pro-Tec', 'Certified skate helmet with adjustable fit system.'),
 ('Drop-Through 40" Longboard Deck', 'SKU-0020-LBDECK40', 'Longboard', 'Landyachtz', '40 inch drop-through longboard deck for commuting and carving.');
 
-INSERT INTO warehouses (name, location, address, max_capacity, current_capacity, code, is_active) VALUES
-('Central Texas HQ', 'Austin, TX', '1001 Congress Warehouse Blvd, Austin, TX 78701', 6000, 1140, 'CTX-HQ', TRUE),
-('Gulf Coast Distribution Center', 'Houston, TX', '2450 Bayou Logistics Park, Houston, TX 77002', 5000, 620, 'HOU-GULF', TRUE),
-('DFW Street Supply Hub', 'Dallas, TX', '780 Skatepark Dr, Dallas, TX 75201', 5000, 515, 'DFW-STREET', TRUE);
+INSERT INTO warehouses (name, location, address, max_capacity, current_capacity, code, is_active, created_at, updated_at) VALUES
+('Central Texas HQ', 'Austin, TX', '1001 Congress Warehouse Blvd, Austin, TX 78701', 6000, 1140, 'CTX-HQ', TRUE, NOW(), NOW()),
+('Gulf Coast Distribution Center', 'Houston, TX', '2450 Bayou Logistics Park, Houston, TX 77002', 5000, 620, 'HOU-GULF', TRUE, NOW(), NOW()),
+('DFW Street Supply Hub', 'Dallas, TX', '780 Skatepark Dr, Dallas, TX 75201', 5000, 515, 'DFW-STREET', TRUE, NOW(), NOW());
 
 INSERT INTO warehouse_inventories (warehouse_id, product_id, quantity, storage_location) VALUES
 (1, 1, 180, 'A1-Decks-Row1'),

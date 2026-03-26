@@ -2,6 +2,8 @@ package com.skillstorm.skate_inventory_mgmt_system.config;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,10 +11,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,97 +25,116 @@ import com.skillstorm.skate_inventory_mgmt_system.services.CustomOAuth2UserServi
 import com.skillstorm.skate_inventory_mgmt_system.services.CustomOidcUserService;
 
 @Configuration
-@EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+        private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
+        private final CustomOAuth2UserService customOAuth2UserService;
+        private final CustomOidcUserService customOidcUserService;
 
         @Value("${app.frontend-url:http://localhost:4200}")
         private String frontendUrl;
 
-        @Bean
-        SecurityFilterChain securityFilterChain(
-                        HttpSecurity http,
+        public SecurityConfig(
                         CustomOAuth2UserService customOAuth2UserService,
-                        CustomOidcUserService customOidcUserService) throws Exception {
+                        CustomOidcUserService customOidcUserService) {
+                this.customOAuth2UserService = customOAuth2UserService;
+                this.customOidcUserService = customOidcUserService;
+        }
 
-                CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-                csrfTokenRepository.setCookiePath("/");
-                csrfTokenRepository.setCookieName("XSRF-TOKEN");
-                csrfTokenRepository.setHeaderName("X-XSRF-TOKEN");
-
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .cors(Customizer.withDefaults())
-                                .csrf(csrf -> csrf
-                                                .csrfTokenRepository(csrfTokenRepository)
-                                                .ignoringRequestMatchers("/health"))
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                                .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/error", "/health", "/csrf", "/oauth2/**",
-                                                                "/login/**")
+                                                .requestMatchers(
+                                                                "/actuator/health",
+                                                                "/error",
+                                                                "/login",
+                                                                "/login/**",
+                                                                "/oauth2/**")
                                                 .permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/auth/me").permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/products/**", "/warehouses/**",
-                                                                "/warehouse-inventory/**")
-                                                .hasAnyRole("GUEST", "EMPLOYEE", "MANAGER", "ADMIN")
-                                                .requestMatchers(HttpMethod.POST, "/warehouse-inventory/transfer")
-                                                .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
-                                                .requestMatchers(HttpMethod.POST, "/warehouse-inventory/**")
-                                                .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
-                                                .requestMatchers(HttpMethod.PATCH, "/warehouse-inventory/**")
-                                                .hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
-                                                .requestMatchers(HttpMethod.DELETE, "/warehouse-inventory/**")
-                                                .hasAnyRole("MANAGER", "ADMIN")
-                                                .requestMatchers(HttpMethod.POST, "/products/**", "/warehouses/**")
-                                                .hasAnyRole("MANAGER", "ADMIN")
-                                                .requestMatchers(HttpMethod.PATCH, "/products/**", "/warehouses/**")
-                                                .hasAnyRole("MANAGER", "ADMIN")
-                                                .requestMatchers(HttpMethod.DELETE, "/products/**", "/warehouses/**")
-                                                .hasRole("ADMIN")
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                                 .anyRequest().authenticated())
                                 .oauth2Login(oauth -> oauth
+                                                .loginPage("/login")
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userService(customOAuth2UserService)
                                                                 .oidcUserService(customOidcUserService))
-                                                .successHandler((request, response, authentication) -> {
-                                                        String targetUrl = frontendUrl + "/warehouse-inventory";
-                                                        System.out.println("=== OAuth success handler hit ===");
-                                                        System.out.println("Redirecting to: " + targetUrl);
-                                                        response.sendRedirect(targetUrl);
-                                                })
-                                                .failureHandler((request, response, exception) -> {
-                                                        System.out.println("=== OAuth failure handler hit ===");
-                                                        System.out.println("Exception type: "
-                                                                        + exception.getClass().getName());
-                                                        System.out.println(
-                                                                        "Exception message: " + exception.getMessage());
-                                                        exception.printStackTrace();
-                                                        response.sendRedirect(frontendUrl + "/login?error=oauth");
-                                                }))
+                                                .successHandler(oAuth2SuccessHandler())
+                                                .failureHandler(oAuth2FailureHandler()))
                                 .logout(logout -> logout
-                                                .logoutUrl("/auth/logout")
-                                                .logoutSuccessHandler((request, response, authentication) -> response
-                                                                .setStatus(204)))
-                                .exceptionHandling(ex -> ex
-                                                .authenticationEntryPoint((request, response, authException) -> response
-                                                                .sendError(401))
-                                                .accessDeniedHandler((request, response,
-                                                                accessDeniedException) -> response.sendError(403)));
+                                                .logoutUrl("/logout")
+                                                .logoutSuccessHandler((request, response, authentication) -> {
+                                                        log.info("Logout success for user={}",
+                                                                        authentication != null
+                                                                                        ? authentication.getName()
+                                                                                        : "anonymous");
+                                                        response.sendRedirect(frontendUrl + "/login");
+                                                })
+                                                .invalidateHttpSession(true)
+                                                .deleteCookies("JSESSIONID"));
 
                 return http.build();
         }
 
         @Bean
-        CorsConfigurationSource corsConfigurationSource() {
-                CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(List.of(frontendUrl, "http://localhost:4200"));
-                configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(List.of("*"));
-                configuration.setAllowCredentials(true);
-                configuration.setExposedHeaders(List.of("Set-Cookie"));
+        public AuthenticationSuccessHandler oAuth2SuccessHandler() {
+                return (request, response, authentication) -> {
+                        log.info("OAuth login success. principalClass={}, name={}",
+                                        authentication.getPrincipal().getClass().getName(),
+                                        authentication.getName());
+
+                        Object principal = authentication.getPrincipal();
+
+                        if (principal instanceof OidcUser oidcUser) {
+                                log.info("OIDC user claims: sub={}, email={}, name={}",
+                                                oidcUser.getSubject(),
+                                                oidcUser.getEmail(),
+                                                oidcUser.getFullName());
+                        } else if (principal instanceof OAuth2User oauth2User) {
+                                log.info("OAuth2 user attributes keys={}", oauth2User.getAttributes().keySet());
+                                log.info("OAuth2 user email={}, name={}, sub={}",
+                                                oauth2User.getAttribute("email"),
+                                                oauth2User.getAttribute("name"),
+                                                oauth2User.getAttribute("sub"));
+                        }
+
+                        response.sendRedirect(frontendUrl + "/warehouse-inventory");
+                };
+        }
+
+        @Bean
+        public AuthenticationFailureHandler oAuth2FailureHandler() {
+                return (request, response, exception) -> {
+                        log.error("OAuth login failed. requestUri={}, message={}",
+                                        request.getRequestURI(),
+                                        exception.getMessage(),
+                                        exception);
+
+                        response.sendRedirect("/api/login?error");
+                };
+        }
+
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+
+                config.setAllowedOriginPatterns(List.of(
+                                "http://localhost:4200",
+                                "http://localhost:8080",
+                                "http://skate-api-prod.eba-ixt4pv9i.us-east-1.elasticbeanstalk.com",
+                                "https://*"));
+
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("*"));
+                config.setAllowCredentials(true);
+                config.setExposedHeaders(List.of("Set-Cookie", "Location"));
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", configuration);
+                source.registerCorsConfiguration("/**", config);
                 return source;
         }
 }

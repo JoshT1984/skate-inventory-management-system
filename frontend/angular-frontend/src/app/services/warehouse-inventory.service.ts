@@ -20,7 +20,7 @@ export class WarehouseInventoryService {
 
   // CREATE
   createInventory(
-    payload: Omit<WarehouseInventory, 'warehouseInventoryId'>
+    payload: Omit<WarehouseInventory, 'warehouseInventoryId'>,
   ): Observable<WarehouseInventory> {
     return this.http.post<WarehouseInventory>(this.baseURL, payload);
   }
@@ -38,7 +38,7 @@ export class WarehouseInventoryService {
   // UPDATE (PATCH)
   updateInventory(
     id: number,
-    payload: Partial<Omit<WarehouseInventory, 'warehouseInventoryId'>>
+    payload: Partial<Omit<WarehouseInventory, 'warehouseInventoryId'>>,
   ): Observable<WarehouseInventory> {
     return this.http.patch<WarehouseInventory>(`${this.baseURL}/${id}`, payload);
   }
@@ -47,6 +47,4 @@ export class WarehouseInventoryService {
   deleteInventory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseURL}/${id}`);
   }
-
-  
 }

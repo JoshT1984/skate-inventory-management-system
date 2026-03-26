@@ -16,11 +16,11 @@ import com.skillstorm.skate_inventory_mgmt_system.models.User;
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
+    private final AuthService authService;
     private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
-    private final AuthProvisioningService authProvisioningService;
 
-    public CustomOAuth2UserService(AuthProvisioningService authProvisioningService) {
-        this.authProvisioningService = authProvisioningService;
+    public CustomOAuth2UserService(AuthService authService) {
+        this.authService = authService;
     }
 
     @Override
@@ -34,15 +34,18 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String firstName = stringValue(attributes.getOrDefault("given_name", attributes.get("name")));
         String lastName = stringValue(attributes.getOrDefault("family_name", "User"));
 
-        User user = authProvisioningService.provisionUser(provider, providerUserId, email, firstName, lastName);
-        authProvisioningService.enrichAttributes(attributes, user);
+        User user = authService.provisionUser(provider, providerUserId, email, firstName, lastName);
+        attributes = authService.enrichAttributes(attributes, user);
 
         String nameAttributeKey = attributes.containsKey("sub") ? "sub" : "email";
-        return new DefaultOAuth2User(authProvisioningService.toAuthorities(user, oauthUser.getAuthorities()),
-                attributes, nameAttributeKey);
+
+        return new DefaultOAuth2User(
+                authService.toAuthorities(user, oauthUser.getAuthorities()),
+                attributes,
+                nameAttributeKey);
     }
 
     private String stringValue(Object value) {
-        return value == null ? null : String.valueOf(value);
+        return value == null ? null : value.toString().trim();
     }
 }

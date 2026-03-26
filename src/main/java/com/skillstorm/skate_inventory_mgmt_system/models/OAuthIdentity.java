@@ -64,15 +64,39 @@ public class OAuthIdentity {
         return oauthIdentityId;
     }
 
+    public void setOauthIdentityId(Long oauthIdentityId) {
+        this.oauthIdentityId = oauthIdentityId;
+    }
+
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getProvider() {
         return provider;
     }
 
+    public void setProvider(String provider) {
+        this.provider = provider == null ? null : provider.trim().toLowerCase();
+    }
+
     public String getProviderUserId() {
         return providerUserId;
+    }
+
+    public void setProviderUserId(String providerUserId) {
+        this.providerUserId = providerUserId == null ? null : providerUserId.trim();
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

@@ -1,32 +1,38 @@
 spring:
   application:
     name: skate-inventory-mgmt-system
+
   config:
     import: "optional:file:.env[.properties],optional:file:backend/.env[.properties]"
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://${RDS_HOSTNAME:localhost}:${RDS_PORT:5432}/${RDS_DB_NAME:skatedb}}}
     username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${RDS_USERNAME:skate_user}}}
     password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${RDS_PASSWORD:postgres}}}
     driver-class-name: org.postgresql.Driver
-  session:
-    store-type: jdbc
-    jdbc:
-      initialize-schema: ${SESSION_INIT_SCHEMA:never}
-      schema: classpath:org/springframework/session/jdbc/schema-postgresql.sql
-  sql:
-    init:
-      mode: ${SQL_INIT_MODE:never}
-      schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
+
   jpa:
     hibernate:
       ddl-auto: none
     open-in-view: false
     defer-datasource-initialization: true
-    show-sql: true
+    show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: true
+        format_sql: ${FORMAT_SQL:false}
+
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:never}
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: ${SESSION_INIT_SCHEMA:never}
+      schema: classpath:org/springframework/session/jdbc/schema-postgresql.sql
+
   security:
     oauth2:
       client:
@@ -34,11 +40,15 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID:}
             client-secret: ${GOOGLE_CLIENT_SECRET:}
-            scope: [openid, profile, email]
-            redirect-uri: "${OAUTH_REDIRECT_URI:https://your-cloudfront-domain.example.com/api/login/oauth2/code/{registrationId}}"
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: ${OAUTH_REDIRECT_URI:http://localhost:8080/api/login/oauth2/code/{registrationId}}
         provider:
           google:
             issuer-uri: https://accounts.google.com
+
 server:
   port: ${PORT:${SERVER_PORT:8080}}
   forward-headers-strategy: framework
@@ -46,12 +56,28 @@ server:
     context-path: /api
     session:
       cookie:
-        same-site: none
-        secure: true
+        same-site: ${COOKIE_SAME_SITE:none}
+        secure: ${COOKIE_SECURE:true}
         http-only: true
+
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:4200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 logging:
   level:
-    com.skillstorm: DEBUG
-    org.springframework.security: INFO
+    com.skillstorm: ${APP_LOG_LEVEL:DEBUG}
+    org.springframework.security: ${SECURITY_LOG_LEVEL:DEBUG}
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

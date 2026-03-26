@@ -1,0 +1,1 @@
+web: java -jar target/skate-inventory-mgmt-system-0.0.2-SNAPSHOT.jar --server.port=5000
