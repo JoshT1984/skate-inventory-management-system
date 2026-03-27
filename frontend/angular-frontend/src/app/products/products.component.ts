@@ -5,6 +5,9 @@ import { Product } from '../models/product.model';
 import { ProductService } from '../services/product.service';
 import { AuthService } from '../services/auth.service';
 
+type ProductSortField = 'name' | 'sku' | 'category' | 'brand';
+type SortDirection = 'asc' | 'desc';
+
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -15,7 +18,6 @@ import { AuthService } from '../services/auth.service';
 export class Products implements OnInit {
   products: Product[] = [];
 
-  // Simple form object for creating a new product (no id here)
   newProductForm = {
     name: '',
     sku: '',
@@ -24,21 +26,26 @@ export class Products implements OnInit {
     description: '',
   };
 
-  // for edit mode
   editingProduct: Product | null = null;
 
   apiError: string | null = null;
   apiSuccess: string | null = null;
   isLoading = false;
-  searchTerm: string = '';
 
-  constructor(private productService: ProductService, private cdr: ChangeDetectorRef, public authService: AuthService) {}
+  searchTerm = '';
+  sortField: ProductSortField = 'name';
+  sortDirection: SortDirection = 'asc';
+
+  constructor(
+    private productService: ProductService,
+    private cdr: ChangeDetectorRef,
+    public authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
     this.getAllProducts();
   }
 
-  // READ ALL
   getAllProducts(): void {
     this.isLoading = true;
     this.clearMessages();
@@ -46,7 +53,7 @@ export class Products implements OnInit {
     this.productService.getAllProducts().subscribe({
       next: (body) => {
         this.products = body.map(
-          (p) => new Product(p.productId, p.name, p.sku, p.category, p.brand, p.description)
+          (p) => new Product(p.productId, p.name, p.sku, p.category, p.brand, p.description),
         );
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -60,7 +67,6 @@ export class Products implements OnInit {
     });
   }
 
-  // CREATE (no productId in payload)
   createProduct(): void {
     this.clearMessages();
 
@@ -72,11 +78,11 @@ export class Products implements OnInit {
     this.isLoading = true;
 
     const payload = {
-      name: this.newProductForm.name,
-      sku: this.newProductForm.sku,
-      category: this.newProductForm.category,
-      brand: this.newProductForm.brand,
-      description: this.newProductForm.description,
+      name: this.newProductForm.name.trim(),
+      sku: this.newProductForm.sku.trim(),
+      category: this.newProductForm.category.trim(),
+      brand: this.newProductForm.brand.trim(),
+      description: this.newProductForm.description.trim(),
     };
 
     this.productService.createProduct(payload as any).subscribe({
@@ -87,11 +93,11 @@ export class Products implements OnInit {
           created.sku,
           created.category,
           created.brand,
-          created.description
+          created.description,
         );
-        this.products.push(newProd);
 
-        // reset the form
+        this.products = [newProd, ...this.products];
+
         this.newProductForm = {
           name: '',
           sku: '',
@@ -121,30 +127,28 @@ export class Products implements OnInit {
     });
   }
 
-  // ENTER EDIT MODE
   startEdit(product: Product): void {
     this.clearMessages();
 
-    // shallow copy so you don't mutate the table row directly
     this.editingProduct = new Product(
       product.productId,
       product.name,
       product.sku,
       product.category,
       product.brand,
-      product.description
+      product.description,
     );
+
+    this.scrollToTop();
     this.cdr.detectChanges();
   }
 
-  // CANCEL EDIT
   cancelEdit(): void {
     this.editingProduct = null;
     this.clearMessages();
     this.cdr.detectChanges();
   }
 
-  // UPDATE (PATCH)
   updateProduct(): void {
     if (!this.editingProduct) {
       this.apiError = 'No product selected for update.';
@@ -164,9 +168,9 @@ export class Products implements OnInit {
                 updated.sku,
                 updated.category,
                 updated.brand,
-                updated.description
+                updated.description,
               )
-            : p
+            : p,
         );
 
         this.editingProduct = null;
@@ -183,11 +187,11 @@ export class Products implements OnInit {
     });
   }
 
-  // DELETE
   deleteProduct(id: number): void {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
     this.isLoading = true;
+
     this.productService.deleteProduct(id).subscribe({
       next: () => {
         this.products = this.products.filter((p) => p.productId !== id);
@@ -202,6 +206,40 @@ export class Products implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  get filteredProducts(): Product[] {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    let filtered = this.products.filter((p) => {
+      if (!term) return true;
+
+      return (
+        p.name.toLowerCase().includes(term) ||
+        p.sku.toLowerCase().includes(term) ||
+        (p.category?.toLowerCase().includes(term) ?? false) ||
+        (p.brand?.toLowerCase().includes(term) ?? false) ||
+        (p.description?.toLowerCase().includes(term) ?? false)
+      );
+    });
+
+    filtered = [...filtered].sort((a, b) => {
+      const aValue = String(a[this.sortField] ?? '').toLowerCase();
+      const bValue = String(b[this.sortField] ?? '').toLowerCase();
+      const compare = aValue.localeCompare(bValue);
+      return this.sortDirection === 'asc' ? compare : -compare;
+    });
+
+    return filtered;
+  }
+
+  setSort(field: ProductSortField): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
+    }
   }
 
   private clearMessages(): void {
@@ -220,25 +258,12 @@ export class Products implements OnInit {
     this.apiSuccess = message;
     this.scrollToTop();
 
-    // Optional auto-hide
     setTimeout(() => {
       if (this.apiSuccess === message) {
         this.apiSuccess = null;
-        this.cdr.detectChanges?.();
+        this.cdr.detectChanges();
       }
     }, 3000);
-  }
-
-  //Adds Product Search Functionality
-  get filteredProducts(): Product[] {
-    const term = this.searchTerm.toLowerCase();
-    return this.products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(term) ||
-        p.sku.toLowerCase().includes(term) ||
-        (p.category?.toLowerCase().includes(term) ?? false) ||
-        (p.brand?.toLowerCase().includes(term) ?? false)
-    );
   }
 
   canManage(): boolean {

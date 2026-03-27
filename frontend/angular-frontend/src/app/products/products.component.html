@@ -1,174 +1,236 @@
-<main class="page">
-  <h2>Products</h2>
-  <input type="text" placeholder="Search products..." [(ngModel)]="searchTerm" class="search-box" />
+<main class="page-shell">
+  <div class="page-header">
+    <div class="page-title-row">
+      <div>
+        <h2 class="page-title">Products</h2>
+        <div class="page-subtitle">
+          Manage catalog details, SKUs, brands, and product descriptions.
+        </div>
+      </div>
 
-  <!-- TOP-LEVEL MESSAGES -->
+      <div class="stat-pill">{{ filteredProducts.length }} visible</div>
+    </div>
+  </div>
+
   <div *ngIf="apiError" class="alert alert-error">
     {{ apiError }}
   </div>
+
   <div *ngIf="apiSuccess" class="alert alert-success">
     {{ apiSuccess }}
   </div>
 
-  <!-- CREATE PRODUCT -->
-  <section class="card-section" *ngIf="canManage()">
-    <h3>Add New Product</h3>
+  <div class="layout-grid">
+    <div class="form-stack" *ngIf="canManage()">
+      <section class="card-section">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Add New Product</h3>
+            <p class="card-subtitle">Create products without leaving the page.</p>
+          </div>
+        </div>
 
-    <form #createProductForm="ngForm" (ngSubmit)="createProduct()">
-      <label>
-        Name
-        <input
-          type="text"
-          name="newName"
-          [(ngModel)]="newProductForm.name"
-          required
-          #newName="ngModel"
-        />
-        <span class="error-message" *ngIf="newName.invalid && newName.touched">
-          Name is required.
-        </span>
-      </label>
+        <form #createProductForm="ngForm" (ngSubmit)="createProduct()" class="form-grid">
+          <label>
+            Name
+            <input
+              type="text"
+              name="newName"
+              [(ngModel)]="newProductForm.name"
+              required
+              #newName="ngModel"
+            />
+            <span class="error-message" *ngIf="newName.invalid && newName.touched">
+              Name is required.
+            </span>
+          </label>
 
-      <label>
-        SKU
-        <input
-          type="text"
-          name="newSku"
-          [(ngModel)]="newProductForm.sku"
-          required
-          #newSku="ngModel"
-        />
-        <span class="error-message" *ngIf="newSku.invalid && newSku.touched">
-          SKU is required.
-        </span>
-      </label>
+          <label>
+            SKU
+            <input
+              type="text"
+              name="newSku"
+              [(ngModel)]="newProductForm.sku"
+              required
+              #newSku="ngModel"
+            />
+            <span class="error-message" *ngIf="newSku.invalid && newSku.touched">
+              SKU is required.
+            </span>
+          </label>
 
-      <label>
-        Category
-        <input type="text" name="newCategory" [(ngModel)]="newProductForm.category" />
-      </label>
+          <div class="form-row-2">
+            <label>
+              Category
+              <input type="text" name="newCategory" [(ngModel)]="newProductForm.category" />
+            </label>
 
-      <label>
-        Brand
-        <input type="text" name="newBrand" [(ngModel)]="newProductForm.brand" />
-      </label>
+            <label>
+              Brand
+              <input type="text" name="newBrand" [(ngModel)]="newProductForm.brand" />
+            </label>
+          </div>
 
-      <label>
-        Description
-        <textarea
-          name="newDescription"
-          rows="2"
-          [(ngModel)]="newProductForm.description"
-        ></textarea>
-      </label>
+          <label>
+            Description
+            <textarea
+              name="newDescription"
+              rows="4"
+              [(ngModel)]="newProductForm.description"
+            ></textarea>
+          </label>
 
-      <div class="form-actions">
-        <button type="submit" [disabled]="createProductForm.invalid || isLoading">
-          Create Product
-        </button>
-      </div>
-    </form>
-  </section>
+          <div class="form-actions">
+            <button type="submit" [disabled]="createProductForm.invalid || isLoading">
+              Create Product
+            </button>
+          </div>
+        </form>
+      </section>
 
-  <!-- EDIT PRODUCT -->
-  <section class="card-section" *ngIf="editingProduct && canManage()">
-    <h3>Edit Product</h3>
+      <section class="card-section" *ngIf="editingProduct">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Edit Product</h3>
+            <p class="card-subtitle">Update the selected product and save changes.</p>
+          </div>
+        </div>
 
-    <form #editProductForm="ngForm" (ngSubmit)="updateProduct()">
-      <label>
-        Name
-        <input
-          type="text"
-          name="editName"
-          [(ngModel)]="editingProduct.name"
-          required
-          #editName="ngModel"
-        />
-        <span class="error-message" *ngIf="editName.invalid && editName.touched">
-          Name is required.
-        </span>
-      </label>
+        <form #editProductForm="ngForm" (ngSubmit)="updateProduct()" class="form-grid">
+          <label>
+            Name
+            <input
+              type="text"
+              name="editName"
+              [(ngModel)]="editingProduct.name"
+              required
+              #editName="ngModel"
+            />
+            <span class="error-message" *ngIf="editName.invalid && editName.touched">
+              Name is required.
+            </span>
+          </label>
 
-      <label>
-        SKU
-        <input
-          type="text"
-          name="editSku"
-          [(ngModel)]="editingProduct.sku"
-          required
-          #editSku="ngModel"
-        />
-        <span class="error-message" *ngIf="editSku.invalid && editSku.touched">
-          SKU is required.
-        </span>
-      </label>
+          <label>
+            SKU
+            <input
+              type="text"
+              name="editSku"
+              [(ngModel)]="editingProduct.sku"
+              required
+              #editSku="ngModel"
+            />
+            <span class="error-message" *ngIf="editSku.invalid && editSku.touched">
+              SKU is required.
+            </span>
+          </label>
 
-      <label>
-        Category
-        <input type="text" name="editCategory" [(ngModel)]="editingProduct.category" />
-      </label>
+          <div class="form-row-2">
+            <label>
+              Category
+              <input type="text" name="editCategory" [(ngModel)]="editingProduct.category" />
+            </label>
 
-      <label>
-        Brand
-        <input type="text" name="editBrand" [(ngModel)]="editingProduct.brand" />
-      </label>
+            <label>
+              Brand
+              <input type="text" name="editBrand" [(ngModel)]="editingProduct.brand" />
+            </label>
+          </div>
 
-      <label>
-        Description
-        <textarea
-          name="editDescription"
-          rows="2"
-          [(ngModel)]="editingProduct.description"
-        ></textarea>
-      </label>
+          <label>
+            Description
+            <textarea
+              name="editDescription"
+              rows="4"
+              [(ngModel)]="editingProduct.description"
+            ></textarea>
+          </label>
 
-      <div class="form-actions">
-        <button type="submit" [disabled]="editProductForm.invalid || isLoading">
-          Save Changes
-        </button>
-        <button type="button" (click)="cancelEdit()">Cancel</button>
-      </div>
-    </form>
-  </section>
-
-  <!-- PRODUCT LIST -->
-  <section class="card-section">
-    <div class="section-header">
-      <h3>Product List</h3>
-      <span class="loading-label" *ngIf="isLoading">Loading...</span>
+          <div class="form-actions">
+            <button type="submit" [disabled]="editProductForm.invalid || isLoading">
+              Save Changes
+            </button>
+            <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </form>
+      </section>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>SKU</th>
-          <th>Category</th>
-          <th>Brand</th>
-          <th>Description</th>
-          <th class="actions-col" *ngIf="canManage()">Actions</th>
-        </tr>
-      </thead>
+    <div class="content-stack">
+      <section class="card-section">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Product List</h3>
+            <p class="card-subtitle">Search and sort products without refreshing.</p>
+          </div>
+          <span class="muted" *ngIf="isLoading">Loading...</span>
+        </div>
 
-      <tbody>
-        <tr *ngFor="let product of filteredProducts">
-          <td>{{ product.name }}</td>
-          <td>{{ product.sku }}</td>
-          <td>{{ product.category }}</td>
-          <td>{{ product.brand }}</td>
-          <td>{{ product.description }}</td>
-          <td class="actions-col" *ngIf="canManage()">
-            <button type="button" (click)="startEdit(product)">Edit</button>
-            <button type="button" (click)="deleteProduct(product.productId)" [disabled]="isLoading">
-              Delete
-            </button>
-          </td>
-        </tr>
+        <div class="toolbar">
+          <input
+            type="text"
+            placeholder="Search name, SKU, category, brand..."
+            [(ngModel)]="searchTerm"
+          />
 
-        <tr *ngIf="!isLoading && products.length === 0">
-          <td colspan="6">No products found.</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+          <select [(ngModel)]="sortField">
+            <option value="name">Sort by Name</option>
+            <option value="sku">Sort by SKU</option>
+            <option value="category">Sort by Category</option>
+            <option value="brand">Sort by Brand</option>
+          </select>
+
+          <button type="button" class="btn-secondary" (click)="setSort(sortField)">
+            {{ sortDirection === 'asc' ? 'Ascending' : 'Descending' }}
+          </button>
+        </div>
+
+        <div class="table-shell" *ngIf="filteredProducts.length > 0; else emptyProducts">
+          <table>
+            <thead>
+              <tr>
+                <th class="clickable-sort" (click)="setSort('name')">Name</th>
+                <th class="clickable-sort" (click)="setSort('sku')">SKU</th>
+                <th class="clickable-sort" (click)="setSort('category')">Category</th>
+                <th class="clickable-sort" (click)="setSort('brand')">Brand</th>
+                <th>Description</th>
+                <th class="actions-col" *ngIf="canManage()">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let product of filteredProducts">
+                <td>{{ product.name }}</td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.category || '—' }}</td>
+                <td>{{ product.brand || '—' }}</td>
+                <td>{{ product.description || '—' }}</td>
+                <td class="actions-col" *ngIf="canManage()">
+                  <div class="table-actions">
+                    <button type="button" class="btn-secondary" (click)="startEdit(product)">
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-danger"
+                      (click)="deleteProduct(product.productId)"
+                      [disabled]="isLoading"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #emptyProducts>
+          <div class="empty-state">
+            {{ isLoading ? 'Loading products...' : 'No products found.' }}
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </div>
 </main>

@@ -9,6 +9,9 @@ import { WarehouseInventoryService } from '../services/warehouse-inventory.servi
 import { WarehouseService } from '../services/warehouse.service';
 import { AuthService } from '../services/auth.service';
 
+type InventorySortField = 'warehouse' | 'product' | 'quantity' | 'storageLocation';
+type SortDirection = 'asc' | 'desc';
+
 @Component({
   selector: 'app-warehouse-inventory',
   standalone: true,
@@ -18,12 +21,9 @@ import { AuthService } from '../services/auth.service';
 })
 export class WarehouseInventoryComponent implements OnInit {
   inventory: WarehouseInventory[] = [];
-
-  // options for dropdowns
   warehouses: Warehouse[] = [];
   products: Product[] = [];
 
-  // Form model for new inventory row
   newInventoryForm: {
     warehouseId: number | null;
     productId: number | null;
@@ -36,10 +36,8 @@ export class WarehouseInventoryComponent implements OnInit {
     storageLocation: '',
   };
 
-  // Row currently being edited
   editingItem: WarehouseInventory | null = null;
 
-  // transfer mode
   transferItem: WarehouseInventory | null = null;
   transferForm = {
     destinationWarehouseId: null as number | null,
@@ -50,6 +48,10 @@ export class WarehouseInventoryComponent implements OnInit {
   apiError: string | null = null;
   apiSuccess: string | null = null;
 
+  searchTerm = '';
+  sortField: InventorySortField = 'warehouse';
+  sortDirection: SortDirection = 'asc';
+
   @ViewChild('createInventoryForm') createInventoryForm!: NgForm;
 
   constructor(
@@ -57,7 +59,7 @@ export class WarehouseInventoryComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private warehouseService: WarehouseService,
     private productService: ProductService,
-    public authService: AuthService
+    public authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -66,13 +68,11 @@ export class WarehouseInventoryComponent implements OnInit {
     this.loadProducts();
   }
 
-  // Helper: clear messages
   private clearMessages(): void {
     this.apiError = null;
     this.apiSuccess = null;
   }
 
-  // load warehouses
   private loadWarehouses(): void {
     this.warehouseService.getAllWarehouses().subscribe({
       next: (data) => {
@@ -85,7 +85,6 @@ export class WarehouseInventoryComponent implements OnInit {
     });
   }
 
-  // load products
   private loadProducts(): void {
     this.productService.getAllProducts().subscribe({
       next: (data) => {
@@ -98,7 +97,6 @@ export class WarehouseInventoryComponent implements OnInit {
     });
   }
 
-  // READ ALL
   loadInventory(clearMessages: boolean = true): void {
     this.isLoading = true;
     if (clearMessages) {
@@ -120,7 +118,6 @@ export class WarehouseInventoryComponent implements OnInit {
     });
   }
 
-  // CREATE
   createInventory(): void {
     this.clearMessages();
 
@@ -145,7 +142,7 @@ export class WarehouseInventoryComponent implements OnInit {
 
     this.inventoryService.createInventory(payload).subscribe({
       next: (created) => {
-        this.inventory.push(created);
+        this.inventory = [created, ...this.inventory];
 
         this.newInventoryForm = {
           warehouseId: null,
@@ -153,6 +150,15 @@ export class WarehouseInventoryComponent implements OnInit {
           quantity: null,
           storageLocation: '',
         };
+
+        if (this.createInventoryForm) {
+          this.createInventoryForm.resetForm({
+            warehouseId: null,
+            productId: null,
+            quantity: null,
+            storageLocation: '',
+          });
+        }
 
         this.showSuccess('Inventory item created successfully.');
         this.isLoading = false;
@@ -177,11 +183,9 @@ export class WarehouseInventoryComponent implements OnInit {
     });
   }
 
-  // START TRANSFER
   startTransfer(item: WarehouseInventory): void {
     this.clearMessages();
 
-    // reset validation on the Add form so fields do not flash red
     if (this.createInventoryForm) {
       this.createInventoryForm.form.markAsPristine();
       this.createInventoryForm.form.markAsUntouched();
@@ -193,8 +197,8 @@ export class WarehouseInventoryComponent implements OnInit {
       quantity: null,
     };
 
-    this.cdr.detectChanges();
     this.scrollToTop();
+    this.cdr.detectChanges();
   }
 
   cancelTransfer(): void {
@@ -234,20 +238,15 @@ export class WarehouseInventoryComponent implements OnInit {
     this.inventoryService.transferInventory(payload).subscribe({
       next: () => {
         this.isLoading = false;
-
-        // success message + scroll
         this.showSuccess('Inventory transferred successfully.');
 
-        // reset transfer state
         this.transferItem = null;
         this.transferForm = {
           destinationWarehouseId: null,
           quantity: null,
         };
 
-        // reload inventory, but do NOT clear the success message
         this.loadInventory(false);
-
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -268,7 +267,6 @@ export class WarehouseInventoryComponent implements OnInit {
     });
   }
 
-  // START EDIT
   startEdit(item: WarehouseInventory): void {
     this.clearMessages();
 
@@ -280,17 +278,16 @@ export class WarehouseInventoryComponent implements OnInit {
       storageLocation: item.storageLocation,
     };
 
+    this.scrollToTop();
     this.cdr.detectChanges();
   }
 
-  // CANCEL EDIT
   cancelEdit(): void {
     this.editingItem = null;
     this.clearMessages();
     this.cdr.detectChanges();
   }
 
-  // UPDATE
   updateInventory(): void {
     if (!this.editingItem || this.editingItem.warehouseInventoryId == null) {
       return;
@@ -322,7 +319,7 @@ export class WarehouseInventoryComponent implements OnInit {
     this.inventoryService.updateInventory(id, payload).subscribe({
       next: (updated) => {
         this.inventory = this.inventory.map((it) =>
-          it.warehouseInventoryId === updated.warehouseInventoryId ? updated : it
+          it.warehouseInventoryId === updated.warehouseInventoryId ? updated : it,
         );
 
         this.editingItem = null;
@@ -349,7 +346,6 @@ export class WarehouseInventoryComponent implements OnInit {
     });
   }
 
-  // DELETE
   deleteInventory(id: number): void {
     if (!confirm('Are you sure you want to delete this inventory item?')) return;
 
@@ -370,6 +366,87 @@ export class WarehouseInventoryComponent implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  getWarehouseName(id: number): string {
+    const warehouse = this.warehouses.find((w) => w.warehouseId === id);
+    return warehouse ? warehouse.name : `Warehouse ${id}`;
+  }
+
+  getProductName(id: number): string {
+    const product = this.products.find((p) => p.productId === id);
+    return product ? product.name : `Product ${id}`;
+  }
+
+  getProductSku(id: number): string {
+    const product = this.products.find((p) => p.productId === id);
+    return product?.sku ?? '—';
+  }
+
+  get filteredInventory(): WarehouseInventory[] {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    let filtered = this.inventory.filter((item) => {
+      const warehouseName = this.getWarehouseName(item.warehouseId).toLowerCase();
+      const productName = this.getProductName(item.productId).toLowerCase();
+      const sku = this.getProductSku(item.productId).toLowerCase();
+      const location = item.storageLocation.toLowerCase();
+
+      if (!term) return true;
+
+      return (
+        warehouseName.includes(term) ||
+        productName.includes(term) ||
+        sku.includes(term) ||
+        location.includes(term) ||
+        String(item.quantity).includes(term) ||
+        String(item.warehouseId).includes(term) ||
+        String(item.productId).includes(term)
+      );
+    });
+
+    filtered = [...filtered].sort((a, b) => {
+      let compare = 0;
+
+      if (this.sortField === 'quantity') {
+        compare = a.quantity - b.quantity;
+      } else if (this.sortField === 'storageLocation') {
+        compare = a.storageLocation.toLowerCase().localeCompare(b.storageLocation.toLowerCase());
+      } else if (this.sortField === 'warehouse') {
+        compare = this.getWarehouseName(a.warehouseId)
+          .toLowerCase()
+          .localeCompare(this.getWarehouseName(b.warehouseId).toLowerCase());
+      } else if (this.sortField === 'product') {
+        compare = this.getProductName(a.productId)
+          .toLowerCase()
+          .localeCompare(this.getProductName(b.productId).toLowerCase());
+      }
+
+      return this.sortDirection === 'asc' ? compare : -compare;
+    });
+
+    return filtered;
+  }
+
+  setSort(field: InventorySortField): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
+    }
+  }
+
+  quantityBadgeClass(quantity: number): string {
+    if (quantity === 0) return 'badge badge-danger';
+    if (quantity <= 10) return 'badge badge-warning';
+    return 'badge badge-success';
+  }
+
+  quantityLabel(quantity: number): string {
+    if (quantity === 0) return 'Out';
+    if (quantity <= 10) return 'Low';
+    return 'Stocked';
   }
 
   private scrollToTop(): void {

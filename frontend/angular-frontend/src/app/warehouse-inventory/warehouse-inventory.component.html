@@ -1,283 +1,337 @@
-<main class="page">
-  <h2>Warehouse Inventory</h2>
+<main class="page-shell">
+  <div class="page-header">
+    <div class="page-title-row">
+      <div>
+        <h2 class="page-title">Warehouse Inventory</h2>
+        <div class="page-subtitle">
+          Manage inventory by warehouse, update quantities, and transfer stock.
+        </div>
+      </div>
 
-  <!-- TOP-LEVEL MESSAGES -->
+      <div class="stat-pill">{{ filteredInventory.length }} visible</div>
+    </div>
+  </div>
+
   <div *ngIf="apiError" class="alert alert-error">
     {{ apiError }}
   </div>
+
   <div *ngIf="apiSuccess" class="alert alert-success">
     {{ apiSuccess }}
   </div>
 
-  <!-- CREATE INVENTORY ITEM -->
-  <section class="card-section" *ngIf="canTransfer()">
-    <h3>Add Inventory Item</h3>
+  <div class="layout-grid">
+    <div class="form-stack" *ngIf="canTransfer()">
+      <section class="card-section">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Add Inventory Item</h3>
+            <p class="card-subtitle">Create inventory directly for a warehouse and product.</p>
+          </div>
+        </div>
 
-    <form #createInventoryForm="ngForm" (ngSubmit)="createInventory()">
-      <!-- CREATE FORM: Warehouse select -->
-      <label>
-        Warehouse
-        <select
-          name="newWarehouseId"
-          [(ngModel)]="newInventoryForm.warehouseId"
-          required
-          #newWarehouseId="ngModel"
-        >
-          <option [ngValue]="null" disabled>Choose a warehouse</option>
-          <option *ngFor="let w of warehouses" [ngValue]="w.warehouseId">
-            {{ w.name }} ({{ w.location }}) – ID: {{ w.warehouseId }}
-          </option>
-        </select>
-        <span class="error-message" *ngIf="newWarehouseId.invalid && newWarehouseId.touched">
-          Please select a warehouse.
-        </span>
-      </label>
+        <form #createInventoryForm="ngForm" (ngSubmit)="createInventory()" class="form-grid">
+          <label>
+            Warehouse
+            <select
+              name="newWarehouseId"
+              [(ngModel)]="newInventoryForm.warehouseId"
+              required
+              #newWarehouseId="ngModel"
+            >
+              <option [ngValue]="null" disabled>Choose a warehouse</option>
+              <option *ngFor="let w of warehouses" [ngValue]="w.warehouseId">
+                {{ w.name }} ({{ w.location }})
+              </option>
+            </select>
+            <span class="error-message" *ngIf="newWarehouseId.invalid && newWarehouseId.touched">
+              Please select a warehouse.
+            </span>
+          </label>
 
-      <!-- Product DROPDOWN -->
-      <label>
-        Product
-        <select
-          name="newProductId"
-          [(ngModel)]="newInventoryForm.productId"
-          required
-          #newProductId="ngModel"
-        >
-          <option [ngValue]="null" disabled>Select a product</option>
-          <option *ngFor="let p of products" [ngValue]="p.productId">
-            {{ p.name }} (SKU: {{ p.sku }})
-          </option>
-        </select>
-        <span class="error-message" *ngIf="newProductId.invalid && newProductId.touched">
-          Please select a product.
-        </span>
-      </label>
+          <label>
+            Product
+            <select
+              name="newProductId"
+              [(ngModel)]="newInventoryForm.productId"
+              required
+              #newProductId="ngModel"
+            >
+              <option [ngValue]="null" disabled>Select a product</option>
+              <option *ngFor="let p of products" [ngValue]="p.productId">
+                {{ p.name }} (SKU: {{ p.sku }})
+              </option>
+            </select>
+            <span class="error-message" *ngIf="newProductId.invalid && newProductId.touched">
+              Please select a product.
+            </span>
+          </label>
 
-      <!-- Quantity -->
-      <label>
-        Quantity
-        <input
-          type="number"
-          name="newQuantity"
-          [(ngModel)]="newInventoryForm.quantity"
-          required
-          min="1"
-          #newQuantity="ngModel"
-        />
-        <span class="error-message" *ngIf="newQuantity.invalid && newQuantity.touched">
-          Quantity must be at least 1.
-        </span>
-      </label>
+          <div class="form-row-2">
+            <label>
+              Quantity
+              <input
+                type="number"
+                name="newQuantity"
+                [(ngModel)]="newInventoryForm.quantity"
+                required
+                min="1"
+                #newQuantity="ngModel"
+              />
+              <span class="error-message" *ngIf="newQuantity.invalid && newQuantity.touched">
+                Quantity must be at least 1.
+              </span>
+            </label>
 
-      <!-- Storage Location -->
-      <label>
-        Storage Location
-        <input
-          type="text"
-          name="newStorageLocation"
-          [(ngModel)]="newInventoryForm.storageLocation"
-          required
-          #newStorageLocation="ngModel"
-        />
-        <span
-          class="error-message"
-          *ngIf="newStorageLocation.invalid && newStorageLocation.touched"
-        >
-          Storage location is required.
-        </span>
-      </label>
+            <label>
+              Storage Location
+              <input
+                type="text"
+                name="newStorageLocation"
+                [(ngModel)]="newInventoryForm.storageLocation"
+                required
+                #newStorageLocation="ngModel"
+              />
+              <span
+                class="error-message"
+                *ngIf="newStorageLocation.invalid && newStorageLocation.touched"
+              >
+                Storage location is required.
+              </span>
+            </label>
+          </div>
 
-      <div class="form-actions">
-        <button type="submit" [disabled]="createInventoryForm.invalid || isLoading">
-          Create Inventory Item
-        </button>
-      </div>
-    </form>
-  </section>
+          <div class="form-actions">
+            <button type="submit" [disabled]="createInventoryForm.invalid || isLoading">
+              Create Inventory Item
+            </button>
+          </div>
+        </form>
+      </section>
 
-  <!-- EDIT INVENTORY ITEM -->
-  <section class="card-section" *ngIf="editingItem && canTransfer()">
-    <h3>
-      Edit Inventory Item
-      <span class="muted"> (ID: {{ editingItem!.warehouseInventoryId }})</span>
-    </h3>
+      <section class="card-section" *ngIf="editingItem && canTransfer()">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Edit Inventory Item</h3>
+            <p class="card-subtitle">Update the selected inventory record and save changes.</p>
+          </div>
+        </div>
 
-    <form #editInventoryForm="ngForm" (ngSubmit)="updateInventory()">
-      <!-- Warehouse DROPDOWN -->
-      <label>
-        Warehouse
-        <select
-          name="editWarehouseId"
-          [(ngModel)]="editingItem!.warehouseId"
-          required
-          #editWarehouseId="ngModel"
-        >
-          <option [ngValue]="null" disabled>Select a warehouse</option>
-          <option *ngFor="let w of warehouses" [ngValue]="w.warehouseId">
-            {{ w.name }} ({{ w.location }})
-          </option>
-        </select>
-        <span class="error-message" *ngIf="editWarehouseId.invalid && editWarehouseId.touched">
-          Please select a warehouse.
-        </span>
-      </label>
+        <form #editInventoryForm="ngForm" (ngSubmit)="updateInventory()" class="form-grid">
+          <label>
+            Warehouse
+            <select
+              name="editWarehouseId"
+              [(ngModel)]="editingItem!.warehouseId"
+              required
+              #editWarehouseId="ngModel"
+            >
+              <option [ngValue]="null" disabled>Select a warehouse</option>
+              <option *ngFor="let w of warehouses" [ngValue]="w.warehouseId">
+                {{ w.name }} ({{ w.location }})
+              </option>
+            </select>
+          </label>
 
-      <!-- Product DROPDOWN -->
-      <label>
-        Product
-        <select
-          name="editProductId"
-          [(ngModel)]="editingItem!.productId"
-          required
-          #editProductId="ngModel"
-        >
-          <option [ngValue]="null" disabled>Select a product</option>
-          <option *ngFor="let p of products" [ngValue]="p.productId">
-            {{ p.name }} (SKU: {{ p.sku }})
-          </option>
-        </select>
-        <span class="error-message" *ngIf="editProductId.invalid && editProductId.touched">
-          Please select a product.
-        </span>
-      </label>
+          <label>
+            Product
+            <select
+              name="editProductId"
+              [(ngModel)]="editingItem!.productId"
+              required
+              #editProductId="ngModel"
+            >
+              <option [ngValue]="null" disabled>Select a product</option>
+              <option *ngFor="let p of products" [ngValue]="p.productId">
+                {{ p.name }} (SKU: {{ p.sku }})
+              </option>
+            </select>
+          </label>
 
-      <!-- Quantity -->
-      <label>
-        Quantity
-        <input
-          type="number"
-          name="editQuantity"
-          [(ngModel)]="editingItem!.quantity"
-          required
-          min="1"
-          #editQuantity="ngModel"
-        />
-        <span class="error-message" *ngIf="editQuantity.invalid && editQuantity.touched">
-          Quantity must be at least 1.
-        </span>
-      </label>
+          <div class="form-row-2">
+            <label>
+              Quantity
+              <input
+                type="number"
+                name="editQuantity"
+                [(ngModel)]="editingItem!.quantity"
+                required
+                min="1"
+                #editQuantity="ngModel"
+              />
+            </label>
 
-      <!-- Storage Location -->
-      <label>
-        Storage Location
-        <input
-          type="text"
-          name="editStorageLocation"
-          [(ngModel)]="editingItem!.storageLocation"
-          required
-          #editStorageLocation="ngModel"
-        />
-        <span
-          class="error-message"
-          *ngIf="editStorageLocation.invalid && editStorageLocation.touched"
-        >
-          Storage location is required.
-        </span>
-      </label>
+            <label>
+              Storage Location
+              <input
+                type="text"
+                name="editStorageLocation"
+                [(ngModel)]="editingItem!.storageLocation"
+                required
+                #editStorageLocation="ngModel"
+              />
+            </label>
+          </div>
 
-      <div class="form-actions">
-        <button type="submit" [disabled]="editInventoryForm.invalid || isLoading">
-          Save Changes
-        </button>
-        <button type="button" (click)="cancelEdit()">Cancel</button>
-      </div>
-    </form>
-  </section>
+          <div class="form-actions">
+            <button type="submit" [disabled]="editInventoryForm.invalid || isLoading">
+              Save Changes
+            </button>
+            <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </form>
+      </section>
 
-  <!-- TRANSFER INVENTORY ITEM -->
-  <section class="card-section" *ngIf="transferItem && canTransfer()">
-    <h3>Transfer Inventory</h3>
-    <p class="muted">
-      Transferring Product ID {{ transferItem.productId }} from Warehouse
-      {{ transferItem.warehouseId }}
-    </p>
+      <section class="card-section" *ngIf="transferItem && canTransfer()">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Transfer Inventory</h3>
+            <p class="card-subtitle">
+              Move stock from {{ getWarehouseName(transferItem.warehouseId) }}
+              to another warehouse.
+            </p>
+          </div>
+        </div>
 
-    <form #transferFormRef="ngForm" (ngSubmit)="submitTransfer()">
-      <label>
-        Destination Warehouse
-        <select
-          name="destWarehouseId"
-          [(ngModel)]="transferForm.destinationWarehouseId"
-          required
-          #destWarehouseId="ngModel"
-        >
-          <option [ngValue]="null" disabled>Select warehouse</option>
-          <option
-            *ngFor="let w of warehouses"
-            [ngValue]="w.warehouseId"
-            [disabled]="w.warehouseId === transferItem.warehouseId"
-          >
-            {{ w.name }} ({{ w.location }}) – ID: {{ w.warehouseId }}
-          </option>
-        </select>
-        <span class="error-message" *ngIf="destWarehouseId.invalid && destWarehouseId.touched">
-          Please select a destination warehouse.
-        </span>
-      </label>
+        <form #transferFormRef="ngForm" (ngSubmit)="submitTransfer()" class="form-grid">
+          <label>
+            Destination Warehouse
+            <select
+              name="destWarehouseId"
+              [(ngModel)]="transferForm.destinationWarehouseId"
+              required
+              #destWarehouseId="ngModel"
+            >
+              <option [ngValue]="null" disabled>Select warehouse</option>
+              <option
+                *ngFor="let w of warehouses"
+                [ngValue]="w.warehouseId"
+                [disabled]="w.warehouseId === transferItem.warehouseId"
+              >
+                {{ w.name }} ({{ w.location }})
+              </option>
+            </select>
+            <span class="error-message" *ngIf="destWarehouseId.invalid && destWarehouseId.touched">
+              Please select a destination warehouse.
+            </span>
+          </label>
 
-      <label>
-        Quantity to Transfer
-        <input
-          type="number"
-          name="transferQuantity"
-          [(ngModel)]="transferForm.quantity"
-          required
-          min="1"
-          #transferQuantity="ngModel"
-        />
-        <span class="error-message" *ngIf="transferQuantity.invalid && transferQuantity.touched">
-          Quantity must be at least 1.
-        </span>
-      </label>
+          <label>
+            Quantity to Transfer
+            <input
+              type="number"
+              name="transferQuantity"
+              [(ngModel)]="transferForm.quantity"
+              required
+              min="1"
+              #transferQuantity="ngModel"
+            />
+            <span
+              class="error-message"
+              *ngIf="transferQuantity.invalid && transferQuantity.touched"
+            >
+              Quantity must be at least 1.
+            </span>
+          </label>
 
-      <div class="form-actions">
-        <button type="submit" [disabled]="transferFormRef.invalid || isLoading">Transfer</button>
-        <button type="button" (click)="cancelTransfer()">Cancel</button>
-      </div>
-    </form>
-  </section>
-
-  <!-- INVENTORY LIST -->
-  <section class="card-section">
-    <div class="section-header">
-      <h3>Inventory List</h3>
-      <span class="loading-label" *ngIf="isLoading">Loading...</span>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Warehouse ID</th>
-          <th>Product ID</th>
-          <th>Quantity</th>
-          <th>Storage Location</th>
-          <th class="actions-col" *ngIf="canTransfer()">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of inventory">
-          <td>{{ item.warehouseId }}</td>
-          <td>{{ item.productId }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>{{ item.storageLocation }}</td>
-          <td class="actions-col" *ngIf="canTransfer()">
-            <button type="button" (click)="startEdit(item)">Edit</button>
-            <button type="button" (click)="startTransfer(item)" [disabled]="isLoading">
+          <div class="form-actions">
+            <button type="submit" [disabled]="transferFormRef.invalid || isLoading">
               Transfer
             </button>
-            <button
-              type="button"
-              (click)="deleteInventory(item.warehouseInventoryId!)"
-              [disabled]="isLoading"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
+            <button type="button" class="btn-secondary" (click)="cancelTransfer()">Cancel</button>
+          </div>
+        </form>
+      </section>
+    </div>
 
-        <tr *ngIf="!isLoading && inventory.length === 0">
-          <td colspan="5">No inventory items found.</td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
+    <div class="content-stack">
+      <section class="card-section">
+        <div class="card-title-row">
+          <div>
+            <h3 class="card-title">Inventory List</h3>
+            <p class="card-subtitle">
+              Search by warehouse, product, SKU, quantity, or storage location.
+            </p>
+          </div>
+          <span class="muted" *ngIf="isLoading">Loading...</span>
+        </div>
+
+        <div class="toolbar">
+          <input
+            type="text"
+            placeholder="Search warehouse, product, SKU, or storage location..."
+            [(ngModel)]="searchTerm"
+          />
+
+          <select [(ngModel)]="sortField">
+            <option value="warehouse">Sort by Warehouse</option>
+            <option value="product">Sort by Product</option>
+            <option value="quantity">Sort by Quantity</option>
+            <option value="storageLocation">Sort by Storage Location</option>
+          </select>
+
+          <button type="button" class="btn-secondary" (click)="setSort(sortField)">
+            {{ sortDirection === 'asc' ? 'Ascending' : 'Descending' }}
+          </button>
+        </div>
+
+        <div class="table-shell" *ngIf="filteredInventory.length > 0; else emptyInventory">
+          <table>
+            <thead>
+              <tr>
+                <th class="clickable-sort" (click)="setSort('warehouse')">Warehouse</th>
+                <th class="clickable-sort" (click)="setSort('product')">Product</th>
+                <th>SKU</th>
+                <th class="clickable-sort" (click)="setSort('quantity')">Quantity</th>
+                <th>Status</th>
+                <th class="clickable-sort" (click)="setSort('storageLocation')">
+                  Storage Location
+                </th>
+                <th class="actions-col" *ngIf="canTransfer()">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let item of filteredInventory">
+                <td>{{ getWarehouseName(item.warehouseId) }}</td>
+                <td>{{ getProductName(item.productId) }}</td>
+                <td>{{ getProductSku(item.productId) }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>
+                  <span [class]="quantityBadgeClass(item.quantity)">
+                    {{ quantityLabel(item.quantity) }}
+                  </span>
+                </td>
+                <td>{{ item.storageLocation }}</td>
+                <td class="actions-col" *ngIf="canTransfer()">
+                  <div class="table-actions">
+                    <button type="button" class="btn-secondary" (click)="startEdit(item)">
+                      Edit
+                    </button>
+                    <button type="button" (click)="startTransfer(item)" [disabled]="isLoading">
+                      Transfer
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-danger"
+                      (click)="deleteInventory(item.warehouseInventoryId!)"
+                      [disabled]="isLoading"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <ng-template #emptyInventory>
+          <div class="empty-state">
+            {{ isLoading ? 'Loading inventory...' : 'No inventory items found.' }}
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </div>
 </main>

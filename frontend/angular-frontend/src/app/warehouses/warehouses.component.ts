@@ -5,6 +5,15 @@ import { Warehouse } from '../models/warehouse.model';
 import { WarehouseService } from '../services/warehouse.service';
 import { AuthService } from '../services/auth.service';
 
+type WarehouseSortField =
+  | 'name'
+  | 'location'
+  | 'address'
+  | 'maxCapacity'
+  | 'currentCapacity'
+  | 'code';
+type SortDirection = 'asc' | 'desc';
+
 @Component({
   selector: 'app-warehouses',
   standalone: true,
@@ -15,7 +24,6 @@ import { AuthService } from '../services/auth.service';
 export class Warehouses implements OnInit {
   warehouses: Warehouse[] = [];
 
-  // form state for creating a new warehouse (no id, no timestamps)
   newWarehouseForm = {
     name: '',
     location: '',
@@ -31,13 +39,20 @@ export class Warehouses implements OnInit {
   apiSuccess: string | null = null;
   isLoading = false;
 
-  constructor(private warehouseService: WarehouseService, private cdr: ChangeDetectorRef, public authService: AuthService) {}
+  searchTerm = '';
+  sortField: WarehouseSortField = 'name';
+  sortDirection: SortDirection = 'asc';
+
+  constructor(
+    private warehouseService: WarehouseService,
+    private cdr: ChangeDetectorRef,
+    public authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
     this.loadWarehouses();
   }
 
-  // READ ALL
   loadWarehouses(): void {
     this.isLoading = true;
     this.clearMessages();
@@ -55,8 +70,8 @@ export class Warehouses implements OnInit {
               w.currentCapacity,
               w.code,
               new Date(w.createdAt),
-              new Date(w.updatedAt)
-            )
+              new Date(w.updatedAt),
+            ),
         );
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -70,7 +85,6 @@ export class Warehouses implements OnInit {
     });
   }
 
-  // CREATE (no warehouseId in payload)
   createWarehouse(form: NgForm): void {
     this.clearMessages();
 
@@ -82,12 +96,12 @@ export class Warehouses implements OnInit {
     this.isLoading = true;
 
     const payload = {
-      name: this.newWarehouseForm.name,
-      location: this.newWarehouseForm.location,
-      address: this.newWarehouseForm.address,
+      name: this.newWarehouseForm.name.trim(),
+      location: this.newWarehouseForm.location.trim(),
+      address: this.newWarehouseForm.address.trim(),
       maxCapacity: this.newWarehouseForm.maxCapacity,
       currentCapacity: this.newWarehouseForm.currentCapacity,
-      code: this.newWarehouseForm.code,
+      code: this.newWarehouseForm.code.trim(),
     };
 
     this.warehouseService.createWarehouse(payload).subscribe({
@@ -101,18 +115,17 @@ export class Warehouses implements OnInit {
           created.currentCapacity,
           created.code,
           new Date(created.createdAt),
-          new Date(created.updatedAt)
+          new Date(created.updatedAt),
         );
 
-        this.warehouses.push(w);
+        this.warehouses = [w, ...this.warehouses];
 
-        // 🔥 Reset the form AND reset the model values
         form.resetForm({
           name: '',
           location: '',
           address: '',
-          maxCapacity: null,
-          currentCapacity: null,
+          maxCapacity: 0,
+          currentCapacity: 0,
           code: '',
         });
 
@@ -137,7 +150,6 @@ export class Warehouses implements OnInit {
     });
   }
 
-  // ENTER EDIT MODE
   startEdit(warehouse: Warehouse): void {
     this.clearMessages();
 
@@ -150,19 +162,19 @@ export class Warehouses implements OnInit {
       warehouse.currentCapacity,
       warehouse.code,
       warehouse.createdAt,
-      warehouse.updatedAt
+      warehouse.updatedAt,
     );
+
+    this.scrollToTop();
     this.cdr.detectChanges();
   }
 
-  // CANCEL EDIT
   cancelEdit(): void {
     this.editingWarehouse = null;
     this.clearMessages();
     this.cdr.detectChanges();
   }
 
-  // UPDATE (PATCH)
   updateWarehouse(): void {
     if (!this.editingWarehouse) {
       this.apiError = 'No warehouse selected for update.';
@@ -185,10 +197,11 @@ export class Warehouses implements OnInit {
                 updated.currentCapacity,
                 updated.code,
                 new Date(updated.createdAt),
-                new Date(updated.updatedAt)
+                new Date(updated.updatedAt),
               )
-            : w
+            : w,
         );
+
         this.editingWarehouse = null;
         this.isLoading = false;
         this.showSuccess('Warehouse updated successfully.');
@@ -203,7 +216,6 @@ export class Warehouses implements OnInit {
     });
   }
 
-  // DELETE
   deleteWarehouse(id: number): void {
     if (!confirm('Are you sure you want to delete this warehouse?')) return;
 
@@ -225,6 +237,64 @@ export class Warehouses implements OnInit {
     });
   }
 
+  get filteredWarehouses(): Warehouse[] {
+    const term = this.searchTerm.trim().toLowerCase();
+
+    let filtered = this.warehouses.filter((w) => {
+      if (!term) return true;
+
+      return (
+        w.name.toLowerCase().includes(term) ||
+        w.location.toLowerCase().includes(term) ||
+        w.address.toLowerCase().includes(term) ||
+        w.code.toLowerCase().includes(term)
+      );
+    });
+
+    filtered = [...filtered].sort((a, b) => {
+      const aValue = a[this.sortField];
+      const bValue = b[this.sortField];
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return this.sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      const compare = String(aValue ?? '')
+        .toLowerCase()
+        .localeCompare(String(bValue ?? '').toLowerCase());
+      return this.sortDirection === 'asc' ? compare : -compare;
+    });
+
+    return filtered;
+  }
+
+  setSort(field: WarehouseSortField): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = 'asc';
+    }
+  }
+
+  capacityBadgeClass(warehouse: Warehouse): string {
+    const ratio = warehouse.maxCapacity > 0 ? warehouse.currentCapacity / warehouse.maxCapacity : 0;
+
+    if (ratio >= 1) return 'badge badge-danger'; // Full
+    if (ratio >= 0.85) return 'badge badge-warning'; // Almost full
+    if (ratio === 0) return 'badge badge-warning'; // Empty
+    return 'badge badge-success'; // Available
+  }
+
+  capacityLabel(warehouse: Warehouse): string {
+    const ratio = warehouse.maxCapacity > 0 ? warehouse.currentCapacity / warehouse.maxCapacity : 0;
+
+    if (ratio >= 1) return 'Full';
+    if (ratio >= 0.85) return 'Almost Full';
+    if (ratio === 0) return 'Empty';
+    return 'Available';
+  }
+
   private clearMessages(): void {
     this.apiError = null;
     this.apiSuccess = null;
@@ -241,10 +311,10 @@ export class Warehouses implements OnInit {
     this.apiSuccess = message;
     this.scrollToTop();
 
-    // Optional: auto-hide after 3 seconds
     setTimeout(() => {
       if (this.apiSuccess === message) {
         this.apiSuccess = null;
+        this.cdr.detectChanges();
       }
     }, 3000);
   }
