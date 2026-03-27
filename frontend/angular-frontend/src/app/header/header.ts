@@ -1,61 +1,58 @@
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnDestroy, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterModule],
   templateUrl: './header.html',
   styleUrls: ['./header.css'],
 })
-export class HeaderComponent implements OnDestroy {
-  readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
+export class HeaderComponent {
   isDrawerOpen = false;
 
-  toggleDrawer(): void {
-    this.isDrawerOpen ? this.closeDrawer() : this.openDrawer();
-  }
+  constructor(public auth: AuthService) {}
 
-  openDrawer(): void {
-    this.isDrawerOpen = true;
-    document.body.classList.add('no-scroll');
+  toggleDrawer(): void {
+    this.isDrawerOpen = !this.isDrawerOpen;
   }
 
   closeDrawer(): void {
     this.isDrawerOpen = false;
-    document.body.classList.remove('no-scroll');
+  }
+
+  getInitial(): string {
+    const name = this.displayName();
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  }
+
+  displayName(): string {
+    const authAny = this.auth as any;
+
+    const name =
+      authAny.getDisplayName?.() ||
+      authAny.user?.name ||
+      authAny.user?.displayName ||
+      authAny.user?.firstName ||
+      authAny.currentUser?.name ||
+      authAny.currentUser?.displayName ||
+      authAny.profile?.name ||
+      authAny.profile?.displayName ||
+      authAny.email ||
+      'User';
+
+    return String(name);
   }
 
   login(): void {
     this.closeDrawer();
-    this.router.navigate(['/login']);
+    this.auth.login();
   }
 
   logout(): void {
-    this.auth.logout().subscribe(() => {
-      this.router.navigate(['/login']);
-    });
-  }
-
-  displayName(): string {
-    const user = this.auth.currentUser();
-    return user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : 'Guest';
-  }
-
-  @HostListener('document:keydown.escape')
-  onEsc(): void {
-    if (this.isDrawerOpen) this.closeDrawer();
-  }
-
-  @HostListener('window:resize')
-  onResize(): void {
-    if (window.innerWidth >= 900 && this.isDrawerOpen) this.closeDrawer();
-  }
-
-  ngOnDestroy(): void {
-    document.body.classList.remove('no-scroll');
+    this.closeDrawer();
+    this.auth.logout();
   }
 }

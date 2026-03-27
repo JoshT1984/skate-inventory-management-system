@@ -1,9 +1,9 @@
 <header class="topbar">
   <div class="left-group">
     <img src="skateboard.svg" alt="Skateboard Icon" class="skate-icon" />
-    <div>
+    <div class="brand-block">
       <div class="brand">Skate Supply</div>
-      <div class="sub-brand">OAuth + RBAC + AWS-ready</div>
+      <div class="sub-brand">Inventory & Warehouse Management</div>
     </div>
   </div>
 
@@ -14,7 +14,9 @@
   </nav>
 
   <div class="auth-panel" *ngIf="auth.isAuthenticated(); else signedOut">
-    <span class="welcome">{{ displayName() }}</span>
+    <div class="avatar">
+      {{ getInitial() }}
+    </div>
     <button type="button" class="auth-btn" (click)="logout()">Logout</button>
   </div>
 
@@ -22,7 +24,9 @@
     <button type="button" class="auth-btn" (click)="login()">Login</button>
   </ng-template>
 
-  <button type="button" class="hamburger" aria-label="Open menu" (click)="toggleDrawer()">☰</button>
+  <button type="button" class="hamburger" aria-label="Open menu" (click)="toggleDrawer()">
+    ☰
+  </button>
 </header>
 
 <div class="drawer-backdrop" *ngIf="isDrawerOpen" (click)="closeDrawer()" aria-hidden="true"></div>
@@ -30,14 +34,26 @@
 <aside class="drawer" [class.open]="isDrawerOpen" aria-label="Mobile menu">
   <div class="drawer-header">
     <div class="drawer-title">Menu</div>
-    <button type="button" class="drawer-close" aria-label="Close menu" (click)="closeDrawer()">✕</button>
+    <button type="button" class="drawer-close" aria-label="Close menu" (click)="closeDrawer()">
+      ✕
+    </button>
   </div>
 
   <nav class="drawer-links">
     <a routerLink="/products" routerLinkActive="active-link" (click)="closeDrawer()">Products</a>
-    <a routerLink="/warehouses" routerLinkActive="active-link" (click)="closeDrawer()">Warehouses</a>
-    <a routerLink="/warehouse-inventory" routerLinkActive="active-link" (click)="closeDrawer()">Inventory</a>
-    <button type="button" class="drawer-action" *ngIf="!auth.isAuthenticated()" (click)="login()">Login</button>
-    <button type="button" class="drawer-action" *ngIf="auth.isAuthenticated()" (click)="logout()">Logout</button>
+    <a routerLink="/warehouses" routerLinkActive="active-link" (click)="closeDrawer()"
+      >Warehouses</a
+    >
+    <a routerLink="/warehouse-inventory" routerLinkActive="active-link" (click)="closeDrawer()">
+      Inventory
+    </a>
+
+    <button type="button" class="drawer-action" *ngIf="!auth.isAuthenticated()" (click)="login()">
+      Login
+    </button>
+
+    <button type="button" class="drawer-action" *ngIf="auth.isAuthenticated()" (click)="logout()">
+      Logout
+    </button>
   </nav>
 </aside>
