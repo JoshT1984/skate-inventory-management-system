@@ -35,10 +35,11 @@ spring:
               - openid
               - profile
               - email
-            redirect-uri: http://localhost:8080/api/login/oauth2/code/{registrationId}
+            redirect-uri: ${OAUTH_REDIRECT_URI:http://localhost:8080/api/login/oauth2/code/{registrationId}}
 
 server:
   servlet:
+    context-path: /api
     session:
       cookie:
         same-site: lax

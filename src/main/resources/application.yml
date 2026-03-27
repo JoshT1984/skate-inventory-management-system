@@ -44,7 +44,7 @@ spring:
               - openid
               - profile
               - email
-            redirect-uri: ${OAUTH_REDIRECT_URI:http://localhost:8080/api/login/oauth2/code/{registrationId}}
+            redirect-uri: ${OAUTH_REDIRECT_URI}
         provider:
           google:
             issuer-uri: https://accounts.google.com
@@ -61,7 +61,7 @@ server:
         http-only: true
 
 app:
-  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+  frontend-url: ${FRONTEND_URL}
 
 management:
   endpoints:
